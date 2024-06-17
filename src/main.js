@@ -1,4 +1,5 @@
 import './assets/main.css'
+import './oar.ui/theme/index.scss'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
