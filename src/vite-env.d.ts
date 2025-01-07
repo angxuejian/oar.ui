@@ -7,3 +7,4 @@ declare module "*.md" {
 
 declare module "vue-router";
 declare module "vue";
+
