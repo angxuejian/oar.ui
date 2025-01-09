@@ -1,6 +1,7 @@
 import * as Components from "./components/main";
 import { type ComponentsType } from "./components/main";
 import { type App } from 'vue';
+import './theme/base.scss'
 
 export default {
   install(app: App) {
