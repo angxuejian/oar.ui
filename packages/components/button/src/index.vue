@@ -11,24 +11,25 @@ import { globalConfig } from '@OarUI/hook/useGlobalConfig';
 
 
 <style scoped lang="scss">
-@use '@OarUI/theme/base.scss' as base;
+// @use '@OarUI/theme/base.scss' as base;
 
-.button {
-  background-color: base.$parimary-color;
-  color: white;
-}
 
-.button:hover {
-  background-color: base.$parimary-color-hover;
-}
+// .button {
+//   background-color: base.$parimary-color;
+//   color: white;
+// }
 
-.button:active {
-  background-color:base.$parimary-color-active;
-}
+// .button:hover {
+//   background-color: base.$parimary-color-hover;
+// }
 
-.button:disabled {
-  background-color: base.$parimary-color-disabled;
-  color: rgba(255, 255, 255, 0.5);
-}
+// .button:active {
+//   background-color:base.$parimary-color-active;
+// }
+
+// .button:disabled {
+//   background-color: base.$parimary-color-disabled;
+//   color: rgba(255, 255, 255, 0.5);
+// }
 
 </style>

@@ -5,12 +5,18 @@ $parimary-color: #5463ed;
 $parimary-color-hover: color.adjust($parimary-color, $lightness: 20%);
 $parimary-color-active: color.adjust($parimary-color, $lightness: -20%);
 $parimary-color-disabled: color.adjust($parimary-color, $saturation: -50%);
-// :root {
-// //   --primary-color: #{$primary-color};
-// //   --primary-color-hover: #{$primary-color-hover};
-// //   --primary-color-active: #{$primary-color-active};
-// //   --primary-color-disabled: #{$primary-color-disabled};
 
-// // --color: $parimary-color;
-// // --primary-color: $parimary-color
-// }
+$color: color.adjust(#000000, $whiteness: 15%);
+$name: '--color';
+
+:root {
+    #{$name}: #{$parimary-color};
+}
+
+
+button {
+    display: inline-block;
+    cursor: pointer;
+    font-size: 14px;
+    color: $color;
+}
