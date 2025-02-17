@@ -1,22 +1,35 @@
-
 @use 'sass:color';
+@use './function.scss' as *;
 
-$parimary-color: #5463ed;
-$parimary-color-hover: color.adjust($parimary-color, $lightness: 20%);
-$parimary-color-active: color.adjust($parimary-color, $lightness: -20%);
-$parimary-color-disabled: color.adjust($parimary-color, $saturation: -50%);
+$primary-color: red;
+$primary-color-hover: color.adjust($primary-color, $lightness: 15%);
+$primary-color-active: color.adjust($primary-color, $lightness: -15%);
+$primary-color-disabled: color.adjust($primary-color, $saturation: -30%);
 
-$color: color.adjust(#000000, $whiteness: 15%);
-$name: '--color';
+$color-white: color.adjust(#ffffff, $whiteness: 15%);
+$color-black: color.adjust(#000000, $whiteness: 15%);
+
+$name: '--oar-color';
 
 :root {
-    #{$name}: #{$parimary-color};
+  // #{$name}: #{$color};
+  // --oar-white-color: #{}
+  --oar-text-color: #{$color-black};
+  --oar-text-color-white: #{$color-white};
+  --oar-text-color-black: #{$color-black};
+  --oar-primary-color: #{$primary-color};
+  --oar-primary-color-hover: #{$primary-color-hover};
+  --oar-primary-color-active: #{$primary-color-active};
+  --oar-primary-color-disabled: #{$primary-color-disabled};
+  @for $i from 1 through 10 {
+    $percentage: $i * 10%;
+    --oar-primary-lighten-#{$i}: #{color.mix(white, $primary-color, $percentage)};
+  }
+
+  --oar-border-radius: 4px;
+  --oar-font-size: 14px;
 }
 
 
-button {
-    display: inline-block;
-    cursor: pointer;
-    font-size: 14px;
-    color: $color;
-}
+
+// base small medium large
