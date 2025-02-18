@@ -32,7 +32,6 @@ const buttonClass = computed(() => {
 
 <template>
   <button v-on="$attrs" class="oar-button" :class="buttonClass" :disabled="disabled">
-    <span v-if="props.loading && !props.disabled" class="loading-circle"></span>
     <slot />
   </button>
 </template>
@@ -65,9 +64,11 @@ const buttonClass = computed(() => {
   }
 
   // Loading 样式
-  .loading-circle {
-    border-top-color: $loading-color;
-    border-right-color: $loading-color;
+  &.oar-button--loading {
+    &::before {
+      border-top-color: $loading-color !important;
+      border-right-color: $loading-color !important;
+    }
   }
 }
 
@@ -75,27 +76,44 @@ const buttonClass = computed(() => {
   margin-left: 12px;
   font-size: var(--oar-font-size);
   padding: 8px 15px;
-  display: inline-block !important;
+  overflow: hidden;
   cursor: pointer;
   transition: all 0.2s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  vertical-align: middle;
+  text-align: center;
   user-select: none;
   font-family: inherit;
   line-height: 1.2;
   white-space: nowrap;
   box-sizing: border-box;
-
+  position: relative;
+  overflow: hidden;
   &:disabled {
     cursor: not-allowed !important;
   }
 
-  .loading-circle {
-    border-top-color: var(--oar-text-color-black);
-    border-right-color: var(--oar-text-color-black);
+  &--loading {
+    pointer-events: none;
+    cursor: auto;
+    opacity: 0.75;
+    &::before {
+      content: '';
+      display: inline-block;
+      width: calc(var(--oar-font-size) - 1px);
+      height: calc(var(--oar-font-size) - 1px);
+      margin-right: 6px;
+      // margin-left: 3px;
+      border: 1px solid transparent;
+      border-radius: 50%;
+      box-sizing: border-box;
+      animation: rotate-circle 1s linear infinite;
+      border-top-color: var(--oar-text-color-black);
+      border-right-color: var(--oar-text-color-black);
+    }
   }
-
 
   &--primary {
     border-radius: var(--oar-border-radius);
@@ -143,22 +161,6 @@ const buttonClass = computed(() => {
       );
     }
   }
-
-  &--loading {
-    pointer-events: none;
-    cursor: auto;
-    opacity: 0.75;
-  }
-}
-
-.loading-circle {
-  width: var(--oar-font-size);
-  height: var(--oar-font-size);
-  display: inline-block;
-  border: 1px solid transparent;
-  border-radius: 50%;
-  animation: rotate-circle 1s linear infinite;
-  margin-right: 6px;
 }
 
 @keyframes rotate-circle {
