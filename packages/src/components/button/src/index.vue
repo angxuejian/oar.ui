@@ -146,8 +146,23 @@ const buttonClass = computed(() => {
     }
 
     &.is-text {
-      padding: 0;
+      padding-left: 0;
+      padding-right: 0;
       border: none;
+      border-radius: 0;
+      position: relative;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: transparent;
+        width: 0;
+        height: 1px;
+        transition: 0.3s all ease;
+      }
+
       @include button-styles(transparent, // 初始背景颜色
         var(--oar-primary-color),         // 初始文字颜色
         transparent,                      // 初始边框颜色
@@ -159,6 +174,18 @@ const buttonClass = computed(() => {
         transparent,                      // active 边框颜色
         var(--oar-primary-lighten-5),     // loading 颜色
       );
+
+      &:hover:not([disabled]) {
+        &::after {
+          width: 100%;
+          background-color: var(--oar-primary-color-hover) !important;
+        }
+      }
+      &:active:not([disabled]) {
+        &::after {
+          background-color: var(--oar-primary-color-active) !important;
+        }
+      }
     }
   }
 }
