@@ -23,6 +23,7 @@ const buttonClass = computed(() => {
   return {
     [`oar-button--${props.type}`]: !THEME_DEFAULT.value,
     'oar-button--loading': props.loading && !props.disabled,
+    'is-default': THEME_DEFAULT.value,
     [`is-plain`]: !THEME_DEFAULT.value && props.plain,
     [`is-text`]: !THEME_DEFAULT.value && !props.plain && props.text
   }
@@ -32,6 +33,10 @@ const buttonClass = computed(() => {
 
 <template>
   <button v-on="$attrs" class="oar-button" :class="buttonClass" :disabled="disabled">
+    <svg v-if="props.loading && !props.disabled" class="svg-container" viewBox="0 0 50 50">
+      <circle cx="25" cy="25" r="20" class="circle-box"></circle>
+    </svg>
+
     <slot />
   </button>
 </template>
@@ -43,14 +48,14 @@ const buttonClass = computed(() => {
   border-color: $border-color;
 
   // Hover 状态
-  &:hover:not([disabled]) {
+  &:hover:not([disabled]):not(.oar-button--loading) {
     background-color: $hover-bg;
     color: $hover-color;
     border-color: $hover-border;
   }
 
   // Active 状态
-  &:active:not([disabled]) {
+  &:active:not([disabled]):not(.oar-button--loading) {
     background-color: $active-bg;
     border-color: $active-border;
     color: $active-color;
@@ -64,11 +69,14 @@ const buttonClass = computed(() => {
   }
 
   // Loading 样式
-  &.oar-button--loading {
-    &::before {
-      border-top-color: $loading-color !important;
-      border-right-color: $loading-color !important;
-    }
+  // &.oar-button--loading {
+  //   &::before {
+  //     border-top-color: $loading-color !important;
+  //     border-right-color: $loading-color !important;
+  //   }
+  // }
+  .circle-box {
+    stroke: $loading-color !important;
   }
 }
 
@@ -91,27 +99,51 @@ const buttonClass = computed(() => {
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
+
   &:disabled {
     cursor: not-allowed !important;
   }
 
   &--loading {
-    pointer-events: none;
-    cursor: auto;
+    cursor: wait;
     opacity: 0.75;
-    &::before {
-      content: '';
-      display: inline-block;
-      width: calc(var(--oar-font-size) - 1px);
-      height: calc(var(--oar-font-size) - 1px);
-      margin-right: 6px;
-      // margin-left: 3px;
-      border: 1px solid transparent;
-      border-radius: 50%;
-      box-sizing: border-box;
-      animation: rotate-circle 1s linear infinite;
-      border-top-color: var(--oar-text-color-black);
-      border-right-color: var(--oar-text-color-black);
+    &.is-default {
+      pointer-events: none !important;
+    }
+
+    // &::before {
+    //   content: '';
+    //   display: inline-block;
+    //   width: calc(var(--oar-font-size) - 1px);
+    //   height: calc(var(--oar-font-size) - 1px);
+    //   margin-right: 6px;
+    //   // margin-left: 3px;
+    //   border: 1px solid transparent;
+    //   border-radius: 50%;
+    //   box-sizing: border-box;
+    //   animation: rotate-circle 1s linear infinite;
+    //   border-top-color: var(--oar-text-color-black);
+    //   border-right-color: var(--oar-text-color-black);
+    // }
+  }
+
+  .svg-container {
+    width: var(--oar-font-size);
+    height: var(--oar-font-size);
+    margin-right: 6px;
+    display: inline;
+    vertical-align: middle;
+    animation: rotate-circle 2s linear infinite;
+    transform-origin: center;
+
+    .circle-box {
+      fill: none;
+      stroke: var(--oar-text-color-black);
+      stroke-width: 2px;
+      stroke-linecap: round;
+      stroke-dashoffset: 0;
+      stroke-dasharray: 90, 126;
+      animation: flow 1.5s ease-in-out infinite;
     }
   }
 
@@ -126,7 +158,7 @@ const buttonClass = computed(() => {
       var(--oar-text-color-white), // hover 文字颜色
       var(--oar-primary-color-hover), // hover 边框颜色
       var(--oar-primary-color-active), // active 背景颜色
-      var(--oar-text-color-white),    // active 文字颜色
+      var(--oar-text-color-white), // active 文字颜色
       var(--oar-primary-color-active), // active 边框颜色
       var(--oar-text-color-white), // loading 颜色
     );
@@ -139,7 +171,7 @@ const buttonClass = computed(() => {
         var(--oar-text-color-white), // hover 文字颜色
         var(--oar-primary-color), // hover 边框颜色
         var(--oar-primary-color-active), // active 背景颜色
-        var(--oar-text-color-white),    // active 文字颜色
+        var(--oar-text-color-white), // active 文字颜色
         var(--oar-primary-color-active), // active 边框颜色
         var(--oar-primary-lighten-5), // loading 颜色
       );
@@ -151,6 +183,7 @@ const buttonClass = computed(() => {
       border: none;
       border-radius: 0;
       position: relative;
+
       &::after {
         content: '';
         position: absolute;
@@ -164,24 +197,25 @@ const buttonClass = computed(() => {
       }
 
       @include button-styles(transparent, // 初始背景颜色
-        var(--oar-primary-color),         // 初始文字颜色
-        transparent,                      // 初始边框颜色
-        transparent,                      // hover 背景颜色
-       var(--oar-primary-color-hover),    // hover 文字颜色
-        transparent,                      // hover 边框颜色
-        transparent,                      // active 背景颜色
-        var(--oar-primary-color-active),  // active 文字颜色
-        transparent,                      // active 边框颜色
-        var(--oar-primary-lighten-5),     // loading 颜色
+        var(--oar-primary-color), // 初始文字颜色
+        transparent, // 初始边框颜色
+        transparent, // hover 背景颜色
+        var(--oar-primary-color-hover), // hover 文字颜色
+        transparent, // hover 边框颜色
+        transparent, // active 背景颜色
+        var(--oar-primary-color-active), // active 文字颜色
+        transparent, // active 边框颜色
+        var(--oar-primary-lighten-5), // loading 颜色
       );
 
-      &:hover:not([disabled]) {
+      &:hover:not([disabled]):not(.oar-button--loading) {
         &::after {
           width: 100%;
           background-color: var(--oar-primary-color-hover) !important;
         }
       }
-      &:active:not([disabled]) {
+
+      &:active:not([disabled]):not(.oar-button--loading) {
         &::after {
           background-color: var(--oar-primary-color-active) !important;
         }
@@ -191,16 +225,25 @@ const buttonClass = computed(() => {
 }
 
 @keyframes rotate-circle {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes flow {
   0% {
-    transform: rotate(0deg);
+    stroke-dasharray: 1, 126;
+    stroke-dashoffset: 0;
   }
 
   50% {
-    transform: rotate(180deg);
+    stroke-dasharray: 90, 126;
+    stroke-dashoffset: -50px;
   }
 
   100% {
-    transform: rotate(360deg);
+    stroke-dasharray: 1, 126;
+    stroke-dashoffset: -126px;
   }
 }
 
