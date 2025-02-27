@@ -128,22 +128,25 @@ const buttonClass = computed(() => {
   }
 
   .svg-container {
-    width: var(--oar-font-size);
-    height: var(--oar-font-size);
+    width: calc(var(--oar-font-size) + 1px);
+    height: calc(var(--oar-font-size) + 1px);
+    border-radius: 50%;
     margin-right: 6px;
     display: inline;
     vertical-align: middle;
     animation: rotate-circle 2s linear infinite;
     transform-origin: center;
+    will-change: transform;
 
     .circle-box {
       fill: none;
       stroke: var(--oar-text-color-black);
-      stroke-width: 2px;
-      stroke-linecap: round;
+      stroke-width: 3px;
+      // stroke-linecap: round;
       stroke-dashoffset: 0;
       stroke-dasharray: 90, 126;
-      animation: flow 1.5s ease-in-out infinite;
+      animation: flow 2s ease-in-out infinite;
+      will-change: stroke-dashoffset;
     }
   }
 
@@ -242,7 +245,7 @@ const buttonClass = computed(() => {
   }
 
   100% {
-    stroke-dasharray: 1, 126;
+    stroke-dasharray: 90, 126;
     stroke-dashoffset: -126px;
   }
 }
