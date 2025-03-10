@@ -1,0 +1,13 @@
+
+
+/* 淡入淡出 */
+.fade-enter-active,
+.fade-leave-active {
+    transition: all 0.3s;
+    // background-color: red;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}

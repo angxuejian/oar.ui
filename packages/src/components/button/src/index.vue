@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue';
-import { type UseCommonProps, useCommonComputed } from '@OarUI/use/usePropsComputed';
+import { type UseCommonProps, useCommonComputed, useNamespace } from '@OarUI/hooks';
 
 interface Props {
   type?: 'primary';
@@ -17,22 +17,23 @@ const props = withDefaults(defineProps<Props & UseCommonProps>(), {
   text: false
 });
 const THEME_DEFAULT = useCommonComputed(props);
-
+const ns = useNamespace('button');
 
 const buttonClass = computed(() => {
   return {
-    [`oar-button--${props.type}`]: !THEME_DEFAULT.value,
-    'oar-button--loading': props.loading && !props.disabled,
-    'is-default': THEME_DEFAULT.value,
-    [`is-plain`]: !THEME_DEFAULT.value && props.plain,
-    [`is-text`]: !THEME_DEFAULT.value && !props.plain && props.text
+    [ns.b()]: true,
+    [ns.m(props.type)]: !THEME_DEFAULT.value,
+    [ns.m('loading')]: props.loading && !props.disabled,
+    [ns.is('default', THEME_DEFAULT.value)]: true,
+    [ns.is('plain', !THEME_DEFAULT.value && props.plain)]: true,
+    [ns.is('text', !THEME_DEFAULT.value && !props.plain && props.text)]: true
   }
 });
 
 </script>
 
 <template>
-  <button v-on="$attrs" class="oar-button" :class="buttonClass" :disabled="disabled">
+  <button v-on="$attrs" :class="buttonClass" :disabled="disabled">
     <svg v-if="props.loading && !props.disabled" class="svg-container" viewBox="0 0 50 50">
       <circle cx="25" cy="25" r="20" class="circle-box"></circle>
     </svg>

@@ -1,9 +1,17 @@
 @use 'sass:color';
 
 @function text-color($bg-color) {
-    @if color.lightness($bg-color) > 50% {
-        @return red;
-    } @else {
-        @return blue;
-    }
+  @if color.lightness($bg-color) > 50% {
+    @return red;
+  } @else {
+    @return blue;
+  }
 }
+
+@function to-rgba($color, $alpha: 1) {
+  @return rgba(color.channel($color, 'red', $space: rgb), 
+  color.channel($color, 'green', $space: rgb), 
+  color.channel($color, 'blue', $space: rgb), 
+  $alpha);
+}
+
