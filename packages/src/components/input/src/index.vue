@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Search, SquareX } from 'lucide-vue-next'
 import { useNamespace } from '@OarUI/hooks'
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, useTemplateRef } from 'vue'
+import { useFocusControls } from '@OarUI/hooks'
 const ns = useNamespace('input')
 const [model, modifiers] = defineModel({
   set(value: string) {
@@ -19,37 +20,25 @@ const [model, modifiers] = defineModel({
 // const props = withDefaults(defineProps<Props>(), {
 //   clearable: false,
 // })
-const inputRef: Ref = ref()
-const isFocus = ref<boolean>(false)
-const handleClick = () => {
-  if (!isFocus.value) {
-    inputRef.value?.focus()
-  }
-}
-const handleClear = () => {
-  console.log('clear')
-  if (!isFocus.value) {
-    inputRef.value?.focus()
-  }
+const wrapperRef: Ref = ref();
+const inputRef: Ref = ref();
+const { isFocused, handlerClick } = useFocusControls(wrapperRef, inputRef);
+
+// const handleClear = () => {
+  // console.log('clear')
+  // if (!isFocus.value) {
+  //   inputRef.value?.focus()
+  // }
   // if (model.value) model.value = ''
-}
-const handleFocus = () => {
-  console.log('focus')
-  isFocus.value = true
-}
-const handleBlur = () => {
-  console.log('blur')
-  isFocus.value = false
-}
+// }
+
 </script>
 
 <!-- 点击 outside之外才算失焦 -->
 <template>
-  <div @click.capture="handleClick" :class="ns.b()">
+  <div ref="wrapperRef" @click="handlerClick" :class="[ns.b(), ns.is('focus', isFocused)]">
     <!-- <Search /> -->
     <input
-      @focus="handleFocus"
-      @blur="handleBlur"
       ref="inputRef"
       v-model="model"
       :class="[ns.e('inner')]"
@@ -57,11 +46,11 @@ const handleBlur = () => {
       v-bind="$attrs"
     />
 
-    <SquareX
+    <!-- <SquareX
       @click.stop="handleClear"
       stroke-width="1"
       :class="[ns.e('clear'), ns.is('show', !!model), ns.is('hide', !model)]"
-    ></SquareX>
+    ></SquareX> -->
   </div>
 </template>
 
@@ -93,18 +82,18 @@ const handleBlur = () => {
     border-color: var(--oar-border-color-hover);
     box-shadow: var(--oar-border-shadow);
   }
-  &:focus-within {
+  &.is-focus {
     border-color: var(--oar-primary-color);
     box-shadow: var(--oar-border-shadow-primary);
     .oar-input__clear.is-show {
       @extend .is-show;
     }
   }
-  &:not(:focus-within) {
-    .oar-input__clear {
-      @extend .is-hide;
-    }
-  }
+  // &:not(:focus-within) {
+  //   .oar-input__clear {
+  //     @extend .is-hide;
+  //   }
+  // }
 
   &__inner {
     padding: 8.6px 0px;
@@ -116,6 +105,7 @@ const handleBlur = () => {
     line-height: var(--oar-line-height);
     font-size: var(--oar-font-size);
     color: var(--oar-text-color);
+    user-select: none;
 
     &::placeholder {
       color: var(--oar-text-color-placeholder);
