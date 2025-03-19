@@ -1,43 +1,41 @@
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, watch } from 'vue'
+
+type eventListType = {
+    afterFocus?: (e: FocusEvent) => void,
+    afterBlur?: (e: FocusEvent) => void
+}
+
+export function useFocusControls(wrapperRef: Ref<HTMLElement>, targetRef: Ref<HTMLElement>, { afterFocus, afterBlur }: eventListType = {}) {
+    watch(wrapperRef, (el) => {
+        if (el) {
+            el.setAttribute('tabindex', '-1')
+        }
+    })
 
 
-export function useFocusControls(wrapperRef: Ref<HTMLElement>, targetRef: Ref<HTMLElement>) {
     const isFocused = ref(false)
-    const isListening = ref(false)
 
-    const handlerFocus = () => {
+    const handleFocus = (e: FocusEvent) => {
+        if (isFocused.value) return;
+
         isFocused.value = true
-        console.log(isFocused.value, '1')
+        afterFocus?.(e);
     }
     
-    const handlerBlur = () => {
+    const handleBlur = (e: FocusEvent) => {
+
+        if (e.relatedTarget && wrapperRef.value?.contains(e.relatedTarget as Node)) return
+
         isFocused.value = false
-        console.log(isFocused.value)
+        afterBlur?.(e);
     }
     
-    const handlerClick = () => {
-        console.log(targetRef)
-        if (targetRef.value) {
-            targetRef.value.focus()
-            handlerFocus()
-            if (!isListening.value) {
-                document.addEventListener('click', documentClickHandler)
-                isListening.value = true
-            }
-        }
+    const handleClick = () => {
+        if (!targetRef.value) return;
+
+        targetRef.value.focus()
     }
 
-    const documentClickHandler = (e: MouseEvent) => {
-        if (!wrapperRef.value?.contains(e.target as Node)) {
-            handlerBlur()
-            if (isListening.value) {
-                document.removeEventListener('click', documentClickHandler)
-                console.log(isListening.value, '卸载')
-                isListening.value = false
-            }
-        }
-    }
-
-    return { isFocused, handlerClick }
+    return { isFocused, handleClick, handleFocus, handleBlur }
 
 }

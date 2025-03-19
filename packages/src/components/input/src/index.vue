@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Search, SquareX } from 'lucide-vue-next'
+import { SquareX } from 'lucide-vue-next'
 import { useNamespace } from '@OarUI/hooks'
-import { ref, type Ref, useTemplateRef } from 'vue'
+import { ref, type Ref } from 'vue'
 import { useFocusControls } from '@OarUI/hooks'
 const ns = useNamespace('input')
+
 const [model, modifiers] = defineModel({
   set(value: string) {
     if (modifiers.lowercase) {
@@ -12,45 +13,61 @@ const [model, modifiers] = defineModel({
     return value
   },
 })
+const emit = defineEmits(['focus', 'blur'])
 
-// interface Props {
-//   clearable: boolean
-// }
 
-// const props = withDefaults(defineProps<Props>(), {
-//   clearable: false,
-// })
-const wrapperRef: Ref = ref();
-const inputRef: Ref = ref();
-const { isFocused, handlerClick } = useFocusControls(wrapperRef, inputRef);
+interface Props {
+  clearable?: boolean
+  placeholder?: string
+}
 
-// const handleClear = () => {
-  // console.log('clear')
-  // if (!isFocus.value) {
-  //   inputRef.value?.focus()
-  // }
-  // if (model.value) model.value = ''
-// }
+const props = withDefaults(defineProps<Props>(), {
+  clearable: false,
+  placeholder: '',
+})
 
+const wrapperRef: Ref = ref()
+const inputRef: Ref = ref()
+const { isFocused, handleClick, handleBlur, handleFocus } = useFocusControls(wrapperRef, inputRef, {
+  afterFocus(e) {
+    emit('focus', e)
+  },
+  afterBlur(e) {
+    emit('blur', e)
+  },
+})
+
+const handleClear = () => {
+  if (model.value && isFocused.value) {
+    model.value = ''
+  }
+}
 </script>
 
-<!-- 点击 outside之外才算失焦 -->
 <template>
-  <div ref="wrapperRef" @click="handlerClick" :class="[ns.b(), ns.is('focus', isFocused)]">
+  <div ref="wrapperRef" @click="handleClick" :class="[ns.b(), ns.is('focus', isFocused)]">
     <!-- <Search /> -->
     <input
       ref="inputRef"
       v-model="model"
+      @blur="handleBlur"
+      @focus="handleFocus"
       :class="[ns.e('inner')]"
+      :placeholder="props.placeholder"
       type="text"
-      v-bind="$attrs"
     />
 
-    <!-- <SquareX
-      @click.stop="handleClear"
-      stroke-width="1"
-      :class="[ns.e('clear'), ns.is('show', !!model), ns.is('hide', !model)]"
-    ></SquareX> -->
+    <template v-if="props.clearable">
+      <SquareX
+        @click="handleClear"
+        stroke-width="1"
+        :class="[
+          ns.e('clear'),
+          ns.is('show', isFocused && !!model),
+          ns.is('hide', !isFocused || !model),
+        ]"
+      ></SquareX>
+    </template>
   </div>
 </template>
 
@@ -85,15 +102,8 @@ const { isFocused, handlerClick } = useFocusControls(wrapperRef, inputRef);
   &.is-focus {
     border-color: var(--oar-primary-color);
     box-shadow: var(--oar-border-shadow-primary);
-    .oar-input__clear.is-show {
-      @extend .is-show;
-    }
   }
-  // &:not(:focus-within) {
-  //   .oar-input__clear {
-  //     @extend .is-hide;
-  //   }
-  // }
+
 
   &__inner {
     padding: 8.6px 0px;
