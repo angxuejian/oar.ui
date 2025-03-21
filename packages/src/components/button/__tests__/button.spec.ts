@@ -65,7 +65,7 @@ describe('Button.vue', () => {
     })
 
     // Check loading spinner visibility
-    const spinner = wrapper.find('.loading-circle')
+    const spinner = wrapper.find('.svg-container')
     expect(spinner.exists()).toBe(true)
   })
 
