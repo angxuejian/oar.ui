@@ -13,18 +13,32 @@ const onFocusHandle = (e: FocusEvent) => {
 const onBlurHandle = (e: FocusEvent) => {
   console.log(e, 'xx')
 }
+
+const inputRef = ref()
+
+const clickHandler = () => {
+  console.log()
+  inputRef.value.ref.focus()
+
+  setTimeout(() => {
+    inputRef.value.ref.blur()
+  }, 5000);
+}
+const handleKeydown = (e: Event) => {
+  console.log(e, '???xx')
+}
 </script>
 
 
 <template>
-  <!-- <input @input="console.log(textValue)" v-model.trim="textValue" type="text"> -->
+  <input @input="console.log(textValue)" v-model.trim="textValue" readonly type="text">
   <p>
-    <OarInput @blur="onBlurHandle" @focus="onFocusHandle" clearable @input="console.log(textValue)" v-model.lowercase="textValue" placeholder="'123'" />
-    <OarButton>Submit</OarButton>
+    <OarInput  ref="inputRef" disabled clearable maxlength="20" type="password" @blur="onBlurHandle" @focus="onFocusHandle" @input="console.log(textValue)" v-model.clean="textValue" placeholder="'123'" />
+    <OarButton @click="clickHandler">Submit</OarButton>
   </p>
 
   <p>
-    <OarInput v-model="textValue" placeholder="" />
+    <OarInput @keydown="handleKeydown"  clearable v-model="textValue" placeholder="" />
     <OarButton>Submit</OarButton>
   </p>
 </template>

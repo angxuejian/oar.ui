@@ -10,6 +10,8 @@ $primary-color-disabled: color.adjust($primary-color, $saturation: -30%);
 $color-white: color.adjust(#ffffff, $whiteness: 15%);
 $color-black: color.adjust(#000000, $whiteness: 15%);
 $color-black-placeholder: color.adjust($color-black, $whiteness: 80%);
+$color-black-disabled: color.adjust(#F0F0F0, $saturation: -10%);
+
 $color-black-soft: color.adjust(#000000, $whiteness: 50%);;
 $color-black-mute: #282828;
 $name: '--oar-color';
@@ -22,6 +24,7 @@ $name: '--oar-color';
   --oar-text-color-white: #{$color-white};
   --oar-text-color-black: #{$color-black};
   --oar-text-color-placeholder: #{$color-black-placeholder};
+  --oar-text-color-disabled: #{$color-black-disabled};
   --oar-primary-color: #{$primary-color};
   --oar-primary-color-hover: #{$primary-color-hover};
   --oar-primary-color-active: #{$primary-color-active};
