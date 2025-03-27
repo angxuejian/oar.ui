@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { SquareX, Eye, EyeClosed } from 'lucide-vue-next'
-import { useNamespace } from '@OarUI/hooks'
 import { ref, type Ref, computed } from 'vue'
-import { useFocusControls } from '@OarUI/hooks'
+import { type UseCommonProps, useCommonComputed, useFocusControls, useNamespace } from '@OarUI/hooks'
 const ns = useNamespace('input')
 
 const [model, modifiers] = defineModel({
@@ -25,18 +24,19 @@ interface Props {
   disabled?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props & UseCommonProps>(), {
   type: 'text',
   clearable: false,
   placeholder: '',
 })
+const THEME_DEFAULT = useCommonComputed(props);
 
 const modelLength = computed(() => {
-  return model.value ? model.value.length : 0
+  return typeof model.value === 'string' ? model.value.length : 0
 })
 const inputMaxlength = computed(() => {
-  const n = absRoundNumber(props.maxlength)
-  return Number.isNaN(n) ? '' : n
+  const n = typeof props.maxlength !== 'undefined' ? absRoundNumber(props.maxlength) : NaN
+  return Number.isNaN(n) ? undefined : n
 });
 const inputType = computed(() => {
   if (props.type === 'password') {
@@ -83,7 +83,24 @@ defineExpose({ ref: inputRef, clear, focus: () => inputRef.value.focus(), blur: 
 </script>
 
 <template>
-  <div ref="wrapperRef" @click="handleClick" :class="[ns.b(), ns.is('focus', isFocused), ns.is('disabled', props.disabled)]">
+  <input
+      v-if="THEME_DEFAULT"
+      ref="inputRef"
+      v-model="model"
+      @blur="handleBlur"
+      @focus="handleFocus"
+      @input="handleInput"
+      v-on="$attrs"
+      v-bind="$attrs"
+      :class="[ns.e('default')]"
+      :placeholder="props.placeholder"
+      :maxlength="inputMaxlength"
+      :readonly="props.readonly"
+      :disabled="props.disabled"
+      :type="inputType"
+    />
+
+  <div v-else ref="wrapperRef" @click="handleClick" :class="[ns.b(), ns.is('focus', isFocused), ns.is('disabled', props.disabled)]">
     <input
       ref="inputRef"
       v-model="model"
@@ -160,6 +177,17 @@ defineExpose({ ref: inputRef, clear, focus: () => inputRef.value.focus(), blur: 
     }
   }
 
+  &__default {
+    min-width: 320px;
+    padding: 8.6px 10px;
+    box-sizing: border-box;
+    line-height: var(--oar-line-height);
+    font-size: var(--oar-font-size);
+    color: var(--oar-text-color);
+    &::placeholder {
+      color: var(--oar-text-color-placeholder);
+    }
+  }
 
   &__inner {
     padding: 8.6px 0px;
