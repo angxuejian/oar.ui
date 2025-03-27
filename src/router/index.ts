@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory  } from 'vue-router'
 import HomeView from '../views/home.vue'
+import { useRouterStore } from '@/stores/router';
 
-const vueFiles = import.meta.glob("../views/docs/**/*.vue");
 
+const vueFiles = import.meta.glob("../views/docs/**/*.md");
+const routerArray: any[] = []
 
 const toPascalCase = (str: string): string => {
   return str
@@ -12,14 +14,15 @@ const toPascalCase = (str: string): string => {
 }
 
 const componentRouters = Object.keys(vueFiles).map((path) => {
-  const name = path.replace('../views/docs/', '').replace('.vue', '');
+  const name = path.replace('../views/docs/', '').replace('.md', '');
+  const p = '/' + name
+  routerArray.push({ path: p, name })
   return {
-    path: `/${name}`,
+    path: p,
     name: `Oar${toPascalCase(name)}`,
     component: vueFiles[path]
   }
 });
-
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +35,15 @@ const router = createRouter({
       children: componentRouters,
     },
   ],
+})
+
+let isStoreInitialized = false;
+router.beforeEach(() => {
+  if (!isStoreInitialized) {
+    const routerStore = useRouterStore()
+    routerStore.router.push(...routerArray)
+    isStoreInitialized = true;
+  }
 })
 
 export default router
