@@ -101,6 +101,10 @@ const buttonClass = computed(() => {
   position: relative;
   overflow: hidden;
 
+  &.is-default {
+    transition: none;
+  }
+
   &:disabled {
     cursor: not-allowed !important;
   }
