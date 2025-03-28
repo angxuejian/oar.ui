@@ -12,57 +12,54 @@ const endTitle = '<remove-code-end>'
 const createComponent = (code: string) => {
   const sfc = parse(code) // 解析 SFC 代码
 
-  if (sfc.descriptor.template) {
-    index += 1
-    
-    const id = `demo-${index}`
-    const filename = id + '.vue'
 
-    const template = compileTemplate({
-      id,
-      source: sfc.descriptor.template?.content || '',
-      filename: filename,
-    })
-    const renderFnCode = template.code
-      .replace(/import {.*} from "vue"/, '')
-      .replace('export ', '')
+  index += 1
+
+  const id = `demo-${index}`
+  const filename = id + '.vue'
+
+  const template = compileTemplate({
+    id,
+    source: sfc.descriptor.template?.content || '',
+    filename: filename,
+  })
+  const renderFnCode = template.code
+    .replace(/import {.*} from "vue"/, '')
+    .replace('export ', '')
+    .trim()
+
+
+  let scriptFnCode
+  if (sfc.descriptor.scriptSetup || sfc.descriptor.script) {
+    const script = compileScript(sfc.descriptor, { id, inlineTemplate: true })
+    scriptFnCode = script.content
+      .replace(/import {.*} from ["']vue["'];?/g, '') // 移除 import 语句
+      .replace('export default', '') // 移除 export 语句
+      .replace('/*@__PURE__*/_defineComponent(', '')
       .trim()
 
-
-    let scriptFnCode
-    if (sfc.descriptor.scriptSetup || sfc.descriptor.script) {
-      const script = compileScript(sfc.descriptor, { id, inlineTemplate: true })
-      scriptFnCode = script.content
-        .replace(/import {.*} from ["']vue["'];?/g, '') // 移除 import 语句
-        .replace('export default', '') // 移除 export 语句
-        .replace('/*@__PURE__*/_defineComponent(', '')
-        .trim()
-
-      if (scriptFnCode[scriptFnCode.length - 1] === ')') {
-        scriptFnCode = scriptFnCode.slice(0, scriptFnCode.length - 1)
-      }
-      if (scriptFnCode[0] === '{' && scriptFnCode[scriptFnCode.length - 1] === '}') {
-        scriptFnCode = scriptFnCode.slice(1, -1)
-      }
+    if (scriptFnCode[scriptFnCode.length - 1] === ')') {
+      scriptFnCode = scriptFnCode.slice(0, scriptFnCode.length - 1)
     }
-
-    // let styleFnCode
-    // if (sfc.descriptor.styles.length) {
-    //   const styles = compileStyle({ source: sfc.descriptor.styles[0].content, id, filename, scoped: true })
-    //   styleFnCode = 'css:' + styles.code
-    //   console.log(styleFnCode)
-    // }
-
-    demoComponentArray.push(`
-      const component${index} = defineComponent({
-        render: ${renderFnCode},
-        ${scriptFnCode},
-      })
-    `)
-    return index
-  } else {
-    return code
+    if (scriptFnCode[0] === '{' && scriptFnCode[scriptFnCode.length - 1] === '}') {
+      scriptFnCode = scriptFnCode.slice(1, -1)
+    }
   }
+
+  // let styleFnCode
+  // if (sfc.descriptor.styles.length) {
+  //   const styles = compileStyle({ source: sfc.descriptor.styles[0].content, id, filename, scoped: true })
+  //   styleFnCode = 'css:' + styles.code
+  //   console.log(styleFnCode)
+  // }
+
+  demoComponentArray.push(`
+    const component${index} = defineComponent({
+      render: ${renderFnCode},
+      ${scriptFnCode},
+    })
+  `)
+  return index
 }
 
 const createMarkdownit = () => {
@@ -99,13 +96,10 @@ const createMarkdownit = () => {
         if (!codeContent.includes('<template>')) {
           templateCodeContent = `<template>${codeContent}</template>`
         }
-        const result = createComponent(templateCodeContent)
-        let str = ''
-        if (typeof result === 'number') {
-          str = `<component :is='component${result}'></component>`
-        } else {
-          str = result
-        }
+        
+        const index = createComponent(templateCodeContent)
+        const str = `<component :is='component${index}'></component>`
+
         return `<DemoBlock code="${codeContent}">${str}${startTitle}`
       } else {
         return `${endTitle}</DemoBlock>\n`
@@ -131,7 +125,7 @@ const vitePluginVueMarkdown = (): Plugin => {
               <div class='markdown-body'>
                 ${result}
               </div>
-            
+
             </template>
             <script setup lang='ts'>
               import { ref, defineComponent  } from 'vue';
