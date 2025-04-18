@@ -7,11 +7,10 @@
 
 
 <script setup lang="ts">
-import {  defineProps } from "vue";
 interface Props {
     code: string
 }
-defineProps<Props>();
+const props = defineProps<Props>();
 
 // console.log(props.code)
 
