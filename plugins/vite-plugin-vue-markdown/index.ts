@@ -12,7 +12,6 @@ const endTitle = '<remove-code-end>'
 const createComponent = (code: string) => {
   const sfc = parse(code) // 解析 SFC 代码
 
-
   index += 1
 
   const id = `demo-${index}`
@@ -27,7 +26,6 @@ const createComponent = (code: string) => {
     .replace(/import {.*} from "vue"/, '')
     .replace('export ', '')
     .trim()
-
 
   let scriptFnCode
   if (sfc.descriptor.scriptSetup || sfc.descriptor.script) {
@@ -53,11 +51,14 @@ const createComponent = (code: string) => {
   //   console.log(styleFnCode)
   // }
 
+  const splitCode = renderFnCode.split('function render')
+  const variable = splitCode[0]
+  const render = 'function render' + splitCode[1]
   demoComponentArray.push(`
-    const component${index} = defineComponent({
-      render: ${renderFnCode},
-      ${scriptFnCode},
-    })
+    const component${index} = (() => {
+      ${variable}
+      return ${render}
+    })()
   `)
   return index
 }
@@ -96,7 +97,7 @@ const createMarkdownit = () => {
         if (!codeContent.includes('<template>')) {
           templateCodeContent = `<template>${codeContent}</template>`
         }
-        
+
         const index = createComponent(templateCodeContent)
         const str = `<component :is='component${index}'></component>`
 
