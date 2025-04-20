@@ -45,5 +45,9 @@ $name: '--oar-color';
   --oar-border-shadow: 0 0px 3px #{to-rgba(#000, 0.2)};
   --oar-border-shadow-primary: 0 0px 3px #{to-rgba($primary-color, 0.2)};
 
+
+  --oar-scrollbar-color: #ededed;
+  --oar-scrollthumb-color: #c1c1c1;
+  --oar-scrollthumb-color-hover: #b1b1b1;
 // base small medium large
 }

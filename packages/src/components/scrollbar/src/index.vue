@@ -1,12 +1,27 @@
 
 <script lang="ts" setup>
-import { ref, type Ref, computed, onMounted} from 'vue'
+import { ref, type Ref, computed, onMounted } from 'vue'
 import { useNamespace } from '@OarUI/hooks'
 import { useThumbMouse } from './utils'
+import { useResizeObserver } from '@vueuse/core'
+
+
+interface Props {
+  always?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  always: false
+})
+
 
 const ns = useNamespace('scrollbar')
 const wrapRef: Ref = ref()
-const barRef: Ref = ref()
+const barHorizontalRef: Ref = ref()
+const thumbHorizontalRef: Ref = ref()
+
+const barVerticalRef: Ref = ref()
+const thumbVerticalRef: Ref = ref()
 
 const thumbHeight = ref<number>(0)
 const thumbScrollY = ref<number>(0)
@@ -27,32 +42,21 @@ const thumbVerticalStyle = computed(() => {
   }
 })
 
-const { handleMouseDown } = useThumbMouse(wrapRef, barRef)
+const { handleMouseDown, getThumbSize, getScrollDistance, calcScrollValue } = useThumbMouse(wrapRef, barHorizontalRef, barVerticalRef)
+
+
 
 onMounted(() => {
-  const { height, width } = getScrollbarSize()
-  thumbHeight.value = height
-  thumbWidth.value = width
+  // calcThumbSize()
+  useResizeObserver(wrapRef, () => {
+    calcThumbSize()
+  })
 })
 
-const getScrollbarSize = () => {
-  const { clientHeight, scrollHeight, clientWidth, scrollWidth } = wrapRef.value
-
-  // 滚动条高度 = 盒子高度 / 盒子滚动区域高度 * 换算为百分比
-  const height = clientHeight / scrollHeight * 100
-  const width  = clientWidth  / scrollWidth  * 100
-
-  return { height, width }
-}
-
-const getScrollDistance = (event: any) => {
-  const { scrollTop, clientHeight, scrollLeft, clientWidth } = event
-
-  // 滚动条滚动高度 = 盒子内容滚动高度 / 盒子滚动区域高度 * 换算为百分比
-  const scrollY = scrollTop  / clientHeight * 100
-  const scrollX = scrollLeft / clientWidth  * 100
-
-  return { scrollY, scrollX }
+const calcThumbSize = () => {
+  const { height, width } = getThumbSize()
+  thumbHeight.value = height
+  thumbWidth.value = width
 }
 
 const handleScroll = (event: any) => {
@@ -61,29 +65,44 @@ const handleScroll = (event: any) => {
   thumbScrollX.value = scrollX
 }
 
-// let isMove = false
-// let startY = 0
-// let startScrollTop = 0
-// const handleMouseDown = (event: any) => {
-//   isMove = true
-//   startY = event.clientY
-//   startScrollTop = wrapRef.value.scrollTop
-//   document.body.style.userSelect = 'none' // 禁止选中文字
-// }
+const handleClickBar = (event: MouseEvent) => {
+  
+  const scrollType = (event.target as HTMLElement).getAttribute('data-type')
 
-// const handleMouseMove = (event: any) => {
-//   if (!isMove) return;
-//   const distance = event.clientY - startY
-//   const scrollRatio = wrapRef.value.scrollHeight / barRef.value.clientHeight
-//   const scrollTop = startScrollTop + distance * scrollRatio
-//   wrapRef.value.scrollTop = scrollTop
-//   // thumbScrollY.value = scrollTop / wrapRef.value.clientHeight * 100
-// }
+  let key = ''
+  let value = 0
 
-// const handleMouseUp = () => {
-//   isMove = false
-//   document.body.style.userSelect = ''
-// }
+  if (scrollType === 'Y') {
+    const top = thumbHorizontalRef.value.getBoundingClientRect().top
+
+    const startY = top + thumbHorizontalRef.value.offsetHeight / 2
+    value = calcScrollValue(event, 'Y', startY, wrapRef.value.scrollTop)
+    key = 'scrollTop'
+
+  } else {
+    const left = thumbVerticalRef.value.getBoundingClientRect().left
+
+    const startX = left + thumbVerticalRef.value.offsetWidth / 2
+    value = calcScrollValue(event, 'X', startX, wrapRef.value.scrollLeft)
+    key = 'scrollLeft'
+  }
+  
+  const runScrollValue = (key: string, value: number) => {
+    let index = 0
+    let length = 10
+    const speed = Math.ceil((value - wrapRef.value[key]) / length)
+
+    const runTimeout = window.requestAnimationFrame || (fn => setTimeout(fn, 10))
+    const main = () => {
+      wrapRef.value[key] += speed
+      
+      if (index < length) runTimeout(main)
+        index += 1
+    }
+    main()
+  }
+  runScrollValue(key, value)
+}
 
 </script>
 
@@ -92,27 +111,34 @@ const handleScroll = (event: any) => {
   <div :class="[ns.b()]">
     <div @scroll="handleScroll" ref="wrapRef" :class="[ns.e('warp')]">
       <div :class="[ns.e('view')]">
-          这是滚动条？这是滚动条？这是滚动条？这是滚动条？这是滚动条？这是滚动条？这是滚动条？这是滚动条？这是滚动条？这是滚动条？这是滚动条？
-          <p v-for="(item, index) in 100" :key="index">{{ item }}</p>
+
+          <slot />
+
       </div>
     </div>
 
-    <div :class="[ns.e('bar'), ns.e('horizontal')]" ref="barRef">
-      <div  @mousedown="handleMouseDown" :style="thumbHorizontalStyle" :class="[ns.e('thumb')]"></div>
+    <div v-show="thumbHeight" @click="handleClickBar" data-type="Y" :class="[ns.e('bar'), ns.e('horizontal')]" ref="barHorizontalRef">
+      <div ref="thumbHorizontalRef" @click.stop @mousedown="handleMouseDown" data-type="Y" :style="thumbHorizontalStyle" :class="[ns.e('thumb'), ns.is('always', props.always)]"></div>
     </div>
-    <div :class="[ns.e('bar'), ns.e('vertical')]">
-      <div :style="thumbVerticalStyle" :class="[ns.e('thumb')]"></div>
+    <div v-show="thumbWidth" @click="handleClickBar" data-type="X" :class="[ns.e('bar'), ns.e('vertical')]" ref="barVerticalRef">
+      <div ref="thumbVerticalRef" @click.stop @mousedown="handleMouseDown" data-type="X" :style="thumbVerticalStyle" :class="[ns.e('thumb'), ns.is('always', props.always)]"></div>
     </div>
  </div>
 </template>
 
 <style lang="scss" scoped>
 
+$size: 5px;
 .oar-scrollbar {
   width: 100%;
   height: 100%;
   overflow: hidden;
   position: relative;
+  &:hover {
+    .oar-scrollbar__thumb {
+      opacity: 1;
+    }
+  }
 
   &__warp {
     height: 100%;
@@ -122,47 +148,53 @@ const handleScroll = (event: any) => {
   }
 
   &__view {
-    // text-wrap: nowrap;
-    width: calc(100% - 10px);
-    height: calc(100% - 10px);
-    // background-color: blue;
-    // padding-right: 8px;
+    text-wrap: nowrap;
+    width: calc(100% - $size);
+    height: calc(100% - $size);
   }
 
   &__bar {
     position: absolute;
     background-color: transparent;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
+    transition: background-color 0.3s;
+    
+    &:hover {
+      background-color: var(--oar-scrollbar-color);
+    }
+  }
+  &__thumb {
+    // border-radius: 5px;
+    background-color: var(--oar-scrollthumb-color);
+    opacity: 0;
+    transition: background-color 0.3s, opacity 0.3s;
+    &:hover {
+      background-color: var(--oar-scrollthumb-color-hover);
+    }
+    &.is-always {
+      opacity: 1 !important;
+    }
   }
   &__horizontal {
-    width: 6px;
-    height: calc(100% - 2px);
+    width: $size;
+    height: calc(100% - 5px);
     top: 0;
     right: 0;
     .oar-scrollbar__thumb {
       margin: 0 auto;
-      width: 3px;
+      width: $size;
       transform: translateY(1px);
     }
-    // background-color: red;
   }
   &__vertical{
-    height: 6px;
-    width: calc(100% - 2px);
+    height: $size;
+    width: calc(100% - 5px);
     bottom: 0;
     left: 0;
     .oar-scrollbar__thumb {
-      margin: 0 auto;
-      height: 3px;
+      height: $size;
       transform: translateX(1px);
     }
   }
-  &__thumb {
-      border-radius: 5px;
-      background-color: #c1c1c1;
-    }
+
 }
 </style>

@@ -6,10 +6,6 @@
 ## 基础用法
 
 ::: demo
-<template>
-    <div style='width: 500px; height: 500px; background-color:#f5f5f5;'>
-        <OarScrollbar />
-    </div>
-</template>
+
 :::
 
