@@ -75,7 +75,7 @@ export function useThumbMouse(wrapRef: Ref, barHorizontalRef: Ref, barVerticalRe
 
   const getThumbSize = () => {
     const { clientHeight, scrollHeight, clientWidth, scrollWidth } = wrapRef.value
-    console.log(clientWidth, scrollWidth)
+
     // 滚动条高度 = 盒子高度 / 盒子滚动区域高度 * 换算为百分比
     const height = clientHeight === scrollHeight ? 0 : clientHeight / scrollHeight * 100
     const width  = clientWidth === scrollWidth ? 0 : clientWidth  / scrollWidth  * 100

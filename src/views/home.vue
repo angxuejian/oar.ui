@@ -8,6 +8,12 @@
     </ul>
 
     <div class="body">
+      <OarScrollbar  scroll-y ref="scrollbarRef" @scroll="handleScroll" style="width: 100%; height: 200px;">
+        <div v-for="(item, index) in 10" :key="index">{{ item }}</div>
+      </OarScrollbar>
+
+      <button @click="handleClick">click</button>
+
       <RouterView />
     </div>
   </main>
@@ -15,9 +21,20 @@
 
 
 <script setup lang="ts">
+import { type Ref, ref } from 'vue'
 import { useRouterStore } from '@/stores/router';
+import OarScrollbar from '@OarUI/components/scrollbar';
 
 const store = useRouterStore()
+const scrollbarRef: Ref = ref('')
+
+const handleScroll = (event: Event) => {
+  console.log(event?.target?.scrollTop)
+}
+
+const handleClick = () => {
+  
+}
 
 </script>
 

@@ -1,18 +1,25 @@
 
 <script lang="ts" setup>
 import { ref, type Ref, computed, onMounted } from 'vue'
-import { useNamespace } from '@OarUI/hooks'
+import { type UseCommonProps, useCommonComputed, useFocusControls, useNamespace } from '@OarUI/hooks'
 import { useThumbMouse } from './utils'
 import { useResizeObserver } from '@vueuse/core'
+import { throttle } from 'throttle-debounce';
 
+const emit = defineEmits(['scroll'])
 
 interface Props {
-  always?: boolean
+  always?: boolean,
+  scrollY?: boolean,
+  scrollX?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  always: false
+const props = withDefaults(defineProps<Props & UseCommonProps>(), {
+  always: false,
+  scrollY: true,
+  scrollX: true
 })
+const THEME_DEFAULT = useCommonComputed(props);
 
 
 const ns = useNamespace('scrollbar')
@@ -42,15 +49,25 @@ const thumbVerticalStyle = computed(() => {
   }
 })
 
+const wrapClass = computed(() => {
+  return [
+  ns.e('warp'), 
+  ns.is('show', !THEME_DEFAULT.value), 
+  ns.is('scroll-y', props.scrollY && !props.scrollX),
+  ns.is('scroll-x', !props.scrollY && props.scrollX),
+  ns.is('scroll', props.scrollX && props.scrollY)
+  ]
+})
+
 const { handleMouseDown, getThumbSize, getScrollDistance, calcScrollValue } = useThumbMouse(wrapRef, barHorizontalRef, barVerticalRef)
 
 
 
 onMounted(() => {
-  // calcThumbSize()
-  useResizeObserver(wrapRef, () => {
+  calcThumbSize()
+  useResizeObserver(wrapRef, throttle(500, () => {
     calcThumbSize()
-  })
+  }))
 })
 
 const calcThumbSize = () => {
@@ -59,10 +76,12 @@ const calcThumbSize = () => {
   thumbWidth.value = width
 }
 
-const handleScroll = (event: any) => {
+const handleScroll = (event: Event) => {
   const { scrollY, scrollX } = getScrollDistance(event.target)
   thumbScrollY.value = scrollY
   thumbScrollX.value = scrollX
+
+  emit('scroll', event)
 }
 
 const handleClickBar = (event: MouseEvent) => {
@@ -87,7 +106,10 @@ const handleClickBar = (event: MouseEvent) => {
     key = 'scrollLeft'
   }
   
-  const runScrollValue = (key: string, value: number) => {
+  runScrollValue(key, value)
+}
+
+const runScrollValue = (key: string, value: number) => {
     let index = 0
     let length = 10
     const speed = Math.ceil((value - wrapRef.value[key]) / length)
@@ -101,26 +123,33 @@ const handleClickBar = (event: MouseEvent) => {
     }
     main()
   }
-  runScrollValue(key, value)
+
+const setScrollTop = (value: number) => {
+  runScrollValue('scrollTop', value)
 }
 
+const setScrollLeft = (value: number) => {
+  runScrollValue('scrollLeft', value)
+}
+
+defineExpose({ ref: wrapRef, setScrollTop, setScrollLeft })
 </script>
 
 
 <template>
   <div :class="[ns.b()]">
-    <div @scroll="handleScroll" ref="wrapRef" :class="[ns.e('warp')]">
+    <div @scroll="handleScroll" ref="wrapRef" :class="wrapClass">
       <div :class="[ns.e('view')]">
-
+        {{ THEME_DEFAULT }}
           <slot />
 
       </div>
     </div>
 
-    <div v-show="thumbHeight" @click="handleClickBar" data-type="Y" :class="[ns.e('bar'), ns.e('horizontal')]" ref="barHorizontalRef">
+    <div v-show="thumbHeight && !THEME_DEFAULT" @click="handleClickBar" data-type="Y" :class="[ns.e('bar'), ns.e('horizontal')]" ref="barHorizontalRef">
       <div ref="thumbHorizontalRef" @click.stop @mousedown="handleMouseDown" data-type="Y" :style="thumbHorizontalStyle" :class="[ns.e('thumb'), ns.is('always', props.always)]"></div>
     </div>
-    <div v-show="thumbWidth" @click="handleClickBar" data-type="X" :class="[ns.e('bar'), ns.e('vertical')]" ref="barVerticalRef">
+    <div v-show="thumbWidth && !THEME_DEFAULT" @click="handleClickBar" data-type="X" :class="[ns.e('bar'), ns.e('vertical')]" ref="barVerticalRef">
       <div ref="thumbVerticalRef" @click.stop @mousedown="handleMouseDown" data-type="X" :style="thumbVerticalStyle" :class="[ns.e('thumb'), ns.is('always', props.always)]"></div>
     </div>
  </div>
@@ -143,8 +172,19 @@ $size: 5px;
   &__warp {
     height: 100%;
     width: 100%;
-    overflow: scroll;
-    scrollbar-width: none;
+    
+    &.is-show {
+      scrollbar-width: none;
+    }
+    &.is-scroll {
+      overflow: auto;
+    }
+    &.is-scroll-y {
+      overflow-y: auto;
+    }
+    &.is-scroll-x {
+      overflow-x: auto;
+    }
   }
 
   &__view {
