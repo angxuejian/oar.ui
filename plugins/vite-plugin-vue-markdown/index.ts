@@ -15,7 +15,7 @@ const createComponent = (code: string) => {
 
   index += 1
 
-  const id = `demo-${index}`
+  const id = `demo-compoment-${index}`
   const filename = id + '.vue'
 
   const template = compileTemplate({
@@ -23,20 +23,16 @@ const createComponent = (code: string) => {
     source: sfc.descriptor.template?.content || '',
     filename: filename,
   })
-  const importComponent = template.code.match(/import {(.*)} from "vue"/)
-  if (importComponent) {
-
-    const importComponentStr = importComponent[1]
-    importComponentArray.push(...importComponentStr.split(',').map((item) => item.trim()))
-  }
   const renderFnCode = template.code
     .replace(/import {.*} from "vue"/, '')
     .replace('export ', '')
     .trim()
 
+
+  let script
   let scriptFnCode
   if (sfc.descriptor.scriptSetup || sfc.descriptor.script) {
-    const script = compileScript(sfc.descriptor, { id, inlineTemplate: true })
+    script = compileScript(sfc.descriptor, { id, inlineTemplate: true })
     scriptFnCode = script.content
       .replace(/import {.*} from ["']vue["'];?/g, '') // 移除 import 语句
       .replace('export default', '') // 移除 export 语句
@@ -51,23 +47,51 @@ const createComponent = (code: string) => {
     }
   }
 
+  let render = ''
+  let importRegExp: RegExpMatchArray | null = null
+  const reg = /import {(.*)} from ['"]vue['"]/
+  if (!scriptFnCode) {
+    importRegExp = template.code.match(reg)
+    const splitCode = renderFnCode.split('function render')
+    const variable = splitCode[0]
+    const renderFn = 'function render' + splitCode[1]
+    const args = template.code.match(/function render\((.*?)\) {/)
+    let argsStr = args ? args[1] : ''
+
+    render = `render: function renderFn(${argsStr}) {
+      ${variable}
+      return ${renderFn}(${argsStr})
+    }`
+
+  } else {
+    importRegExp = script.content.match(new RegExp(reg, 'g'))
+    render = scriptFnCode
+  }
+
+  if (importRegExp) {
+    importRegExp.forEach((item) => {
+      const importComponent = item.match(reg)
+      if (importComponent) {
+        const importComponentStr = importComponent[1].split(',').map((item) => item.trim())
+        importComponentArray.push(...importComponentStr)
+      }
+    })
+  }
+
   // let styleFnCode
   // if (sfc.descriptor.styles.length) {
   //   const styles = compileStyle({ source: sfc.descriptor.styles[0].content, id, filename, scoped: true })
   //   styleFnCode = 'css:' + styles.code
   //   console.log(styleFnCode)
   // }
-
-  const splitCode = renderFnCode.split('function render')
-  const variable = splitCode[0]
-  const render = 'function render' + splitCode[1]
   demoComponentArray.push(`
-    const component${index} = (() => {
-      ${variable}
-      return ${render}
-    })()
+    const component${index} = _defineComponent({
+      name: '${id}',
+      ${render}
+    })
   `)
   return index
+
 }
 
 const createMarkdownit = () => {
@@ -138,7 +162,6 @@ const vitePluginVueMarkdown = (): Plugin => {
 
             </template>
             <script setup lang='ts'>
-              import { ref, defineComponent  } from 'vue';
               import { ${importStr} } from 'vue';
               import DemoBlock from '@VueMarkdown/demo-block/index.vue';
               ${componentStr}
