@@ -5,6 +5,7 @@ import container from 'markdown-it-container'
 import { compileScript, compileTemplate, parse } from '@vue/compiler-sfc'
 
 let index = -1
+const importComponentArray: string[] = []
 const demoComponentArray: any = []
 const startTitle = '<remove-code-start>'
 const endTitle = '<remove-code-end>'
@@ -22,6 +23,12 @@ const createComponent = (code: string) => {
     source: sfc.descriptor.template?.content || '',
     filename: filename,
   })
+  const importComponent = template.code.match(/import {(.*)} from "vue"/)
+  if (importComponent) {
+
+    const importComponentStr = importComponent[1]
+    importComponentArray.push(...importComponentStr.split(',').map((item) => item.trim()))
+  }
   const renderFnCode = template.code
     .replace(/import {.*} from "vue"/, '')
     .replace('export ', '')
@@ -120,6 +127,8 @@ const vitePluginVueMarkdown = (): Plugin => {
       if (id.endsWith('.md')) {
         const md = createMarkdownit()
         const result = md.render(code).replace(new RegExp(`${startTitle}.*?${endTitle}`, 'gs'), '')
+        const importStr = [...new Set(importComponentArray)].join(',')
+        const componentStr = demoComponentArray.join('\n')
         return {
           code: `
             <template>
@@ -130,9 +139,9 @@ const vitePluginVueMarkdown = (): Plugin => {
             </template>
             <script setup lang='ts'>
               import { ref, defineComponent  } from 'vue';
-              import { resolveComponent as _resolveComponent, Fragment as _Fragment } from 'vue';
+              import { ${importStr} } from 'vue';
               import DemoBlock from '@VueMarkdown/demo-block/index.vue';
-              ${demoComponentArray.join('\n')}
+              ${componentStr}
 
             </script>
 
