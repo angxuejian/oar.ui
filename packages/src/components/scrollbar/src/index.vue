@@ -1,6 +1,6 @@
 
 <script lang="ts" setup>
-import { ref, type Ref, computed, onMounted } from 'vue'
+import { ref, type Ref, computed, onMounted, nextTick } from 'vue'
 import { type UseCommonProps, useCommonComputed, useFocusControls, useNamespace } from '@OarUI/hooks'
 import { useThumbMouse } from './utils'
 import { useResizeObserver } from '@vueuse/core'
@@ -16,14 +16,16 @@ interface Props {
 
 const props = withDefaults(defineProps<Props & UseCommonProps>(), {
   always: false,
-  scrollY: true,
-  scrollX: true
+  scrollY: false,
+  scrollX: false
 })
 const THEME_DEFAULT = useCommonComputed(props);
 
 
 const ns = useNamespace('scrollbar')
 const wrapRef: Ref = ref()
+const wrapViewRef: Ref = ref()
+
 const barHorizontalRef: Ref = ref()
 const thumbHorizontalRef: Ref = ref()
 
@@ -51,11 +53,11 @@ const thumbVerticalStyle = computed(() => {
 
 const wrapClass = computed(() => {
   return [
-  ns.e('warp'), 
-  ns.is('show', !THEME_DEFAULT.value), 
+  ns.e('warp'),
+  ns.is('show', !THEME_DEFAULT.value),
   ns.is('scroll-y', props.scrollY && !props.scrollX),
   ns.is('scroll-x', !props.scrollY && props.scrollX),
-  ns.is('scroll', props.scrollX && props.scrollY)
+  ns.is('scroll', !props.scrollX && !props.scrollY)
   ]
 })
 
@@ -64,8 +66,12 @@ const { handleMouseDown, getThumbSize, getScrollDistance, calcScrollValue } = us
 
 
 onMounted(() => {
-  calcThumbSize()
+  // calcThumbSize()
   useResizeObserver(wrapRef, throttle(500, () => {
+    calcThumbSize()
+  }))
+
+  useResizeObserver(wrapViewRef, throttle(500, () => {
     calcThumbSize()
   }))
 })
@@ -85,7 +91,7 @@ const handleScroll = (event: Event) => {
 }
 
 const handleClickBar = (event: MouseEvent) => {
-  
+
   const scrollType = (event.target as HTMLElement).getAttribute('data-type')
 
   let key = ''
@@ -105,7 +111,7 @@ const handleClickBar = (event: MouseEvent) => {
     value = calcScrollValue(event, 'X', startX, wrapRef.value.scrollLeft)
     key = 'scrollLeft'
   }
-  
+
   runScrollValue(key, value)
 }
 
@@ -117,7 +123,7 @@ const runScrollValue = (key: string, value: number) => {
     const runTimeout = window.requestAnimationFrame || (fn => setTimeout(fn, 10))
     const main = () => {
       wrapRef.value[key] += speed
-      
+
       if (index < length) runTimeout(main)
         index += 1
     }
@@ -139,10 +145,8 @@ defineExpose({ ref: wrapRef, setScrollTop, setScrollLeft })
 <template>
   <div :class="[ns.b()]">
     <div @scroll="handleScroll" ref="wrapRef" :class="wrapClass">
-      <div :class="[ns.e('view')]">
-        {{ THEME_DEFAULT }}
+      <div ref="wrapViewRef" :class="[ns.e('view')]">
           <slot />
-
       </div>
     </div>
 
@@ -172,7 +176,7 @@ $size: 5px;
   &__warp {
     height: 100%;
     width: 100%;
-    
+
     &.is-show {
       scrollbar-width: none;
     }
@@ -184,26 +188,27 @@ $size: 5px;
     }
     &.is-scroll-x {
       overflow-x: auto;
+      .oar-scrollbar__view {
+        text-wrap: nowrap;
+        white-space: nowrap;;
+      }
     }
   }
 
-  &__view {
-    text-wrap: nowrap;
-    width: calc(100% - $size);
-    height: calc(100% - $size);
-  }
+  // &__view {
+  //   // background-color: red;
+  // }
 
   &__bar {
     position: absolute;
     background-color: transparent;
     transition: background-color 0.3s;
-    
+
     &:hover {
       background-color: var(--oar-scrollbar-color);
     }
   }
   &__thumb {
-    // border-radius: 5px;
     background-color: var(--oar-scrollthumb-color);
     opacity: 0;
     transition: background-color 0.3s, opacity 0.3s;

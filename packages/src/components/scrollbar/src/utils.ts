@@ -9,7 +9,7 @@ export function useThumbMouse(wrapRef: Ref, barHorizontalRef: Ref, barVerticalRe
   let startScrollTop = 0
   let startX = 0
   let startScrollLeft = 0
-  
+
 
 
   const handleMouseDown = (event: any) => {
@@ -79,17 +79,17 @@ export function useThumbMouse(wrapRef: Ref, barHorizontalRef: Ref, barVerticalRe
     // 滚动条高度 = 盒子高度 / 盒子滚动区域高度 * 换算为百分比
     const height = clientHeight === scrollHeight ? 0 : clientHeight / scrollHeight * 100
     const width  = clientWidth === scrollWidth ? 0 : clientWidth  / scrollWidth  * 100
-  
+
     return { height, width }
   }
-  
+
   const getScrollDistance = (event: any) => {
     const { scrollTop, clientHeight, scrollLeft, clientWidth } = event
-  
+
     // 滚动条滚动高度 = 盒子内容滚动高度 / 盒子滚动区域高度 * 换算为百分比
     const scrollY = scrollTop  / clientHeight * 100
     const scrollX = scrollLeft / clientWidth  * 100
-  
+
     return { scrollY, scrollX }
   }
 
