@@ -1,6 +1,6 @@
 // Scrollbar.spec.ts
 import { mount } from '@vue/test-utils'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect} from 'vitest'
 import Scrollbar from '../src/index.vue' // 路径请根据你的项目结构调整
 
 describe('Scrollbar.vue', () => {

@@ -25,7 +25,7 @@ export function useNamespace(block: string) {
         b: (blockSuffix: string = '') => _bem(defaultNamespace, block, blockSuffix, '', ''),
         e: (element?: string) => element ? _bem(defaultNamespace, block, '', element, '') : '',
         m: (modifier?: string) => modifier ? _bem(defaultNamespace, block, '', '', modifier) : '',
-
+        em: (element: string, modifier: string) => _bem(defaultNamespace, block, '', element, modifier),
 
         is: (name: string, isValue: boolean) => {
 

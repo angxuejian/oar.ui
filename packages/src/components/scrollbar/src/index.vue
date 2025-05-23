@@ -1,7 +1,7 @@
 
 <script lang="ts" setup>
-import { ref, type Ref, computed, onMounted, nextTick } from 'vue'
-import { type UseCommonProps, useCommonComputed, useFocusControls, useNamespace } from '@OarUI/hooks'
+import { ref, type Ref, computed, onMounted } from 'vue'
+import { type UseCommonProps, useCommonComputed, useNamespace } from '@OarUI/hooks'
 import { useThumbMouse } from './utils'
 import { useResizeObserver } from '@vueuse/core'
 import { throttle } from 'throttle-debounce';
@@ -117,7 +117,7 @@ const handleClickBar = (event: MouseEvent) => {
 
 const runScrollValue = (key: string, value: number) => {
     let index = 0
-    let length = 10
+    const length = 10
     const speed = Math.ceil((value - wrapRef.value[key]) / length)
 
     const runTimeout = window.requestAnimationFrame || (fn => setTimeout(fn, 10))

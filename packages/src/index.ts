@@ -1,8 +1,10 @@
-import * as Components from './src/components/main'
-import { type ComponentsType } from './src/components/main'
+import * as Components from './components/main'
+import { type ComponentsType } from './components/main'
+import type { JoystickChangeDataType } from './components/main'
 import { type App } from 'vue'
-import './theme/base.scss'
+import '../theme/base.scss'
 
+export type { JoystickChangeDataType }
 export default {
   install(app: App) {
     // 合并用户配置与默认配置

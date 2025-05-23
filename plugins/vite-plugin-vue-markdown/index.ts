@@ -56,7 +56,7 @@ const createComponent = (code: string) => {
     const variable = splitCode[0]
     const renderFn = 'function render' + splitCode[1]
     const args = template.code.match(/function render\((.*?)\) {/)
-    let argsStr = args ? args[1] : ''
+    const argsStr = args ? args[1] : ''
 
     render = `render: function renderFn(${argsStr}) {
       ${variable}

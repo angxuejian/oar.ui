@@ -5,7 +5,7 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
-import OarUI from '../packages'
+import OarUI from '../packages/src'
 
 const app = createApp(App)
 
