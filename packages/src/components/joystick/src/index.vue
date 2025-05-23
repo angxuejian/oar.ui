@@ -300,8 +300,7 @@ const calcInnsidePosition = (dx: number, dy: number) => {
 
 const getJoystickDirection = () => {
   const dist = Math.sqrt(position.x ** 2 + position.y ** 2)
-  const maxDist = radius.value - 30
-  const strength = Math.min(dist / maxDist, 1)
+  const strength = Math.min(dist / radius.value, 1)
 
   const rad = Math.atan2(position.x, -position.y)
   const deg = (rad * 180) / Math.PI
