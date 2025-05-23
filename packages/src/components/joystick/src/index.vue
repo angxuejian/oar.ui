@@ -3,14 +3,17 @@ import { ref, type Ref, onMounted, reactive, computed, onUnmounted } from 'vue';
 import { useNamespace } from '@OarUI/hooks'
 
 interface Props {
-  // type?: 'linear' | 'rotate',
-  // direction?: '4-way' | '8-way',
+  type?: 'linear' | 'rotate',
+  direction?: '4-way' | '8-way',
   width?: number,
-  height?: number
+  height?: number,
+  linearSpeed?: number,
+  rotateSpeed?: number
 }
 
-export interface JoystickChangeDataType {
-  direction: string,  // 当前主方向
+
+export interface JoystickChangeLinear8WayDataType {
+  direction: string,
   isForward: boolean,
   isBackward: boolean,
   isLeft: boolean,
@@ -25,11 +28,34 @@ export interface JoystickChangeDataType {
 }
 
 
+export interface JoystickChangeLinear4WayDataType {
+  direction: string,
+  isForward: boolean,
+  isBackward: boolean,
+  isLeft: boolean,
+  isRight: boolean,
+  strength: number,
+  angle: number,
+  radian: number,
+}
+
+export interface JoystickChangeRotateDataType {
+  direction: string,
+  isLeft: boolean,
+  isRight: boolean,
+  strength: number,
+  angle: number,
+  radian: number,
+}
+
+
 const props = withDefaults(defineProps<Props>(), {
-  // type: 'linear',
-  // direction: '4-way'
+  type: 'linear',
+  direction: '4-way',
   width: 180,
-  height: 180
+  height: 180,
+  linearSpeed: 2,
+  rotateSpeed: 0.012
 })
 
 const emit = defineEmits(['change'])
@@ -47,18 +73,25 @@ const animation = ref<boolean>(false)
 const center = reactive({ x: 0, y: 0 })
 const position = reactive({ x: 0, y: 0 })
 const radius = ref<number>(0)
+const radian = ref<number>(0)
 
 const keyboardState = reactive<{ [key: string]: boolean }>({
   w: false,
   a: false,
   s: false,
   d: false,
+  left: false,
+  right: false
 })
 
 let animationFrameId: number = 0
 
 const innsideStyle = computed(() => {
-  return `${animation.value ? 'transition: transform 0.2s ease-out;' : ''} transform: translate(${position.x}px, ${position.y}px)`
+  return [
+    animation.value ? 'transition: transform 0.2s ease-out;' : '',
+    `transform: translate(${position.x}px, ${position.y}px)`,
+    // props.type === 'rotate' && isKeyboard.value ? '' :
+  ]
 })
 
 onMounted(() => {
@@ -78,8 +111,6 @@ const isTargetEvent = (type: 'touch' | 'mouse' | 'keyboard') => {
   if (!isMouse.value && !isKeyboard.value) isTouch.value = type === 'touch'
   if (!isTouch.value && !isKeyboard.value) isMouse.value = type === 'mouse'
   if (!isTouch.value && !isMouse.value) isKeyboard.value = type === 'keyboard'
-
-  // console.log(isMouse.value, isKeyboard.value)
 
   if (type === 'touch') return !isKeyboard.value && !isMouse.value
   else if (type === 'mouse') return !isTouch.value && !isKeyboard.value
@@ -106,14 +137,16 @@ const removeEventListenerKeyboard = () => {
 
 const checkKeyboardValue = (event: KeyboardEvent) => {
   const key = event.key.toLowerCase()
-  const list = ['w', 's', 'a', 'd']
+  const list = props.type === 'linear' ? ['w', 's', 'a', 'd'] : ['arrowleft', 'arrowright', ',', '.', '4', '6']
   return {
     key, check: list.includes(key)
   }
 }
 
 const setKeyboard = (key: string, value: boolean) => {
-  keyboardState[key] = value
+  if (['arrowleft', ',', '4'].includes(key)) keyboardState['left'] = value;
+  else if (['arrowright', '.', '6'].includes(key)) keyboardState['right'] = value;
+  else keyboardState[key] = value
 }
 
 const keydownHandler = (e: KeyboardEvent) => {
@@ -130,7 +163,8 @@ const keydownHandler = (e: KeyboardEvent) => {
 const updateKeyboardMove = () => {
   animation.value = false;
 
-  const linearSpeed = 2 // 控制小圆移动速度
+  const linearSpeed = props.linearSpeed // 控制小圆移动速度
+  const rotateSpeed = props.rotateSpeed // 控制小圆移动弧度
 
   let x = 0
   let y = 0
@@ -140,11 +174,23 @@ const updateKeyboardMove = () => {
   if (keyboardState.a) x -= linearSpeed
   if (keyboardState.d) x += linearSpeed
 
-  const distance = Math.sqrt(x * x + y * y)
-  if (distance > 0) {
-    const dx = position.x + x
-    const dy = position.y + y
-    calcInnsidePosition(dx, dy)
+  if (keyboardState.left) {
+    radian.value -= rotateSpeed
+    position.x = Math.sin(radian.value) * radius.value
+    position.y = -Math.cos(radian.value) * radius.value
+    getJoystickDirection()
+  } else if (keyboardState.right) {
+    radian.value += rotateSpeed
+    position.x = Math.sin(radian.value) * radius.value
+    position.y = -Math.cos(radian.value) * radius.value
+    getJoystickDirection()
+  } else {
+    const distance = Math.sqrt(x * x + y * y)
+    if (distance > 0) {
+      const dx = position.x + x
+      const dy = position.y + y
+      calcInnsidePosition(dx, dy)
+    }
   }
 
   animationFrameId = requestAnimationFrame(updateKeyboardMove)
@@ -265,6 +311,7 @@ const resetPosition = () => {
 
   position.x = 0
   position.y = 0
+  radian.value = 0
   activeTouchId.value = -1
   if (isAddEventListener.value) addEventListenerKeyboard()
   if (animationFrameId) {
@@ -297,15 +344,7 @@ const calcInnsidePosition = (dx: number, dy: number) => {
 }
 
 
-
-const getJoystickDirection = () => {
-  const dist = Math.sqrt(position.x ** 2 + position.y ** 2)
-  const strength = Math.min(dist / radius.value, 1)
-
-  const rad = Math.atan2(position.x, -position.y)
-  const deg = (rad * 180) / Math.PI
-  const angle = (deg + 360) % 360
-
+const setLinear8WayData = (angle: number, value: { strength: number, angle: number, radian: number }) => {
   let direction = 'none'
 
   if (angle >= 337.5 || angle < 22.5) direction = 'forward'
@@ -317,8 +356,8 @@ const getJoystickDirection = () => {
   else if (angle >= 247.5 && angle < 292.5) direction = 'left'
   else if (angle >= 292.5 && angle < 337.5) direction = 'forward-left'
 
-  const data: JoystickChangeDataType = {
-    direction,  // 当前主方向
+  const data: JoystickChangeLinear8WayDataType = {
+    direction,
     isForward: direction === 'forward',
     isBackward: direction === 'backward',
     isLeft: direction === 'left',
@@ -327,19 +366,75 @@ const getJoystickDirection = () => {
     isForwardLeft: direction === 'forward-left',
     isBackwardRight: direction === 'backward-right',
     isBackwardLeft: direction === 'backward-left',
+    ...value
+  }
+  emit('change', data)
+}
+
+const setLinear4WayData = (angle: number, value: { strength: number, angle: number, radian: number }) => {
+
+  let direction = 'none'
+
+  if (angle >= 315 || angle < 45) direction = 'forward'
+  else if (angle >= 45 && angle < 135) direction = 'right'
+  else if (angle >= 135 && angle < 225) direction = 'donw'
+  else if (angle >= 225 && angle < 315) direction = 'left'
+
+  const data: JoystickChangeLinear4WayDataType = {
+    direction,
+    isForward: direction === 'forward',
+    isBackward: direction === 'backward',
+    isLeft: direction === 'left',
+    isRight: direction === 'right',
+    ...value
+  }
+  emit('change', data)
+}
+
+const setRotateData = (angle: number, value: { strength: number, angle: number, radian: number }) => {
+  let direction = 'none'
+  if (keyboardState.left) direction = 'left'
+  else if (keyboardState.right) direction = 'right'
+  else if (angle > 0 && angle <= 180) direction = 'right'
+  else if (angle > 180 && angle <= 360) direction = 'left'
+  const data: JoystickChangeRotateDataType = {
+    direction,
+    isLeft: direction === 'left',
+    isRight: direction === 'right',
+    ...value
+  }
+  emit('change', data)
+}
+
+const getJoystickDirection = () => {
+  const dist = Math.sqrt(position.x ** 2 + position.y ** 2)
+  const strength = Math.min(dist / radius.value, 1)
+
+  const rad = Math.atan2(position.x, -position.y)
+  const deg = (rad * 180) / Math.PI
+  const angle = (deg + 360) % 360
+
+  const data = {
     strength: Number(strength.toFixed(2)),
     angle: Math.round(angle),
     radian: Number(rad.toFixed(3)),
   }
-  emit('change', data)
+
+  if (props.type === 'linear' && props.direction === '8-way') {
+    setLinear8WayData(angle, data)
+  } else if (props.type === 'linear' && props.direction === '4-way') {
+    setLinear4WayData(angle, data)
+  } else {
+    setRotateData(angle, data)
+  }
 }
 </script>
 
 
 <template>
   <div :style="`width: ${props.width}px; height: ${props.height}px;`" @contextmenu.prevent :class="ns.b()">
-    <div ref="outsideRef" @touchstart.prevent="startTouchHandler" @mousedown.prevent="startMouseHandler"
-      :class="[ns.e('outside')]">
+    <div v-if="props.type === 'linear'" ref="outsideRef" @touchstart.prevent="startTouchHandler"
+      @mousedown.prevent="startMouseHandler" :class="[ns.e('outside'), ns.is('linear', true)]">
       <div ref="innsideRef" :style="innsideStyle" :class="ns.e('innside')">
         <div :class="ns.e('button')"></div>
       </div>
@@ -350,6 +445,19 @@ const getJoystickDirection = () => {
         <span :class="ns.em('keyborad', 'd')">D</span>
       </div>
     </div>
+
+    <div v-else-if="props.type === 'rotate'" ref="outsideRef" @touchstart.prevent="startTouchHandler"
+      @mousedown.prevent="startMouseHandler" :class="[ns.e('outside')]">
+
+      <div ref="innsideRef" :style="innsideStyle" :class="ns.e('innside')">
+        <div :class="ns.e('button')"></div>
+      </div>
+      <div :class="ns.e('keyborad')">
+        <span :class="[ns.em('keyborad', 'left'), ns.is('light', keyboardState.left)]"></span>
+        <span :class="[ns.em('keyborad', 'right'), ns.is('light', keyboardState.right)]"></span>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -368,7 +476,6 @@ const getJoystickDirection = () => {
     justify-content: center;
     position: relative;
     touch-action: none;
-    // pointer-events: none;
     border: 2px solid #333;
 
     &::before {
@@ -379,7 +486,7 @@ const getJoystickDirection = () => {
       transform: translate(-50%, -50%);
       width: 97%;
       height: 97%;
-      background-color: rgba(0, 0, 0, 0.2);
+      background-color: rgba(0, 0, 0, 0.5);
       border-radius: 50%;
       z-index: 1;
     }
@@ -408,8 +515,8 @@ const getJoystickDirection = () => {
   }
 
   &__keyborad {
-    width: 65%;
-    height: 65%;
+    width: 70%;
+    height: 70%;
     position: absolute;
     left: 50%;
     top: 50%;
@@ -436,7 +543,8 @@ const getJoystickDirection = () => {
       transform: translateX(-50%);
     }
 
-    &--a {
+    &--a,
+    &--left {
       left: 0;
       top: 50%;
       transform: translateY(-50%);
@@ -448,10 +556,55 @@ const getJoystickDirection = () => {
       transform: translateX(-50%);
     }
 
-    &--d {
+    &--d,
+    &--right {
       right: 0;
       top: 50%;
       transform: translateY(-50%);
+    }
+
+    &--left {
+      &::before {
+        content: '';
+        position: absolute;
+        border-left: 2px solid #fff;
+        border-top: 2px solid #fff;
+        transform: translate(-25%, -50%) rotate(-45deg);
+        top: 50%;
+        left: 50%;
+        width: 40%;
+        height: 40%;
+      }
+    }
+
+    &--right {
+      &::before {
+        content: '';
+        position: absolute;
+        border-right: 2px solid #fff;
+        border-top: 2px solid #fff;
+        transform: translate(25%, -50%) rotate(45deg);
+        top: 50%;
+        right: 50%;
+        width: 40%;
+        height: 40%;
+      }
+    }
+
+    .is-light {
+      &.oar-joystick__keyborad--left {
+        &::before {
+          border-left-color: var(--oar-primary-color);
+          border-top-color: var(--oar-primary-color);
+        }
+      }
+
+      &.oar-joystick__keyborad--right {
+        &::before {
+          border-right-color: var(--oar-primary-color);
+          border-top-color: var(--oar-primary-color);
+        }
+      }
     }
   }
 }
