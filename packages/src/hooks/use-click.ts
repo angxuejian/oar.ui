@@ -3,10 +3,10 @@ import { onMounted, onBeforeUnmount, type Ref } from "vue";
 /**
  * 自定义hook：为传入的元素ref绑定点击（click）和触摸（touchstart）事件
  * 兼容移动端和PC端，防止同一操作被触发两次
- * @param elRef 目标元素的ref
+ * @param elRef 目标元素的ref or dom节点
  * @param handler 事件回调函数，参数类型为TouchEvent or MouseEvent
  */
-export function useClick(elRef: Ref, handler: (event: TouchEvent | MouseEvent) => void) {
+export function useClick(elRef: Ref | HTMLElement, handler: (event: TouchEvent | MouseEvent) => void) {
   let touched = false;
 
   const touchHandler = (e: TouchEvent) => {
@@ -23,7 +23,7 @@ export function useClick(elRef: Ref, handler: (event: TouchEvent | MouseEvent) =
   }
 
   onMounted(() => {
-    const el = elRef.value;
+    const el = elRef instanceof HTMLElement ? elRef : elRef.value;
     if (!el) return;
 
     el.addEventListener('touchstart', touchHandler, {
@@ -34,7 +34,7 @@ export function useClick(elRef: Ref, handler: (event: TouchEvent | MouseEvent) =
   })
 
   onBeforeUnmount(() => {
-    const el = elRef.value;
+    const el = elRef instanceof HTMLElement ? elRef : elRef.value;
     if (!el) return;
 
     el.removeEventListener('touchstart', touchHandler)
