@@ -58,7 +58,7 @@ const props = withDefaults(defineProps<Props>(), {
   rotateSpeed: 0.012
 })
 
-const emit = defineEmits(['change'])
+const emit = defineEmits(['change', 'reset'])
 const ns = useNamespace('joystick')
 const outsideRef: Ref = ref()
 const innsideRef: Ref = ref()
@@ -84,7 +84,9 @@ const keyboardState = reactive<{ [key: string]: boolean }>({
   right: false
 })
 
-let animationFrameId: number = 0
+let animationFramekeyboardId: number = 0
+let animationFrameTouchId: number = 0
+let animationFrameMouseId: number = 0
 
 const innsideStyle = computed(() => {
   return [
@@ -157,7 +159,7 @@ const keydownHandler = (e: KeyboardEvent) => {
   if (!check) return;
   setKeyboard(key, true)
 
-  if (!animationFrameId) updateKeyboardMove()
+  if (!animationFramekeyboardId) updateKeyboardMove()
 }
 
 const updateKeyboardMove = () => {
@@ -193,7 +195,7 @@ const updateKeyboardMove = () => {
     }
   }
 
-  animationFrameId = requestAnimationFrame(updateKeyboardMove)
+  animationFramekeyboardId = requestAnimationFrame(updateKeyboardMove)
 }
 
 const keyupHandler = (e: KeyboardEvent) => {
@@ -227,6 +229,21 @@ const checkTouchThumb = (event: TouchEvent) => {
 const startTouchHandler = (event: TouchEvent) => {
   if (!isTargetEvent('touch')) return
 
+  let lastEmitTime = 0;
+  const emitInterval = 1000 / 30; 
+
+  const loop = () => {
+    if (!isTargetEvent('touch')) return
+
+    const now = Date.now()
+    if (now - lastEmitTime > emitInterval) {
+      getJoystickDirection()
+      lastEmitTime = now
+    }
+
+    animationFrameTouchId = requestAnimationFrame(loop)
+  }
+
   const checkAndRun = (event: TouchEvent) => {
     const touchData = checkTouchThumb(event)
     if (!touchData) return
@@ -252,6 +269,7 @@ const startTouchHandler = (event: TouchEvent) => {
   activeTouchId.value = event.changedTouches[0].identifier
   updateCenter()
   checkAndRun(event)
+  loop()
   removeEventListenerKeyboard()
 
   window.addEventListener('touchmove', moveTouchHandler)
@@ -265,6 +283,21 @@ const startTouchHandler = (event: TouchEvent) => {
 const startMouseHandler = (event: MouseEvent) => {
   if (event.button !== 0) return
   if (!isTargetEvent('mouse')) return
+
+  let lastEmitTime = 0;
+  const emitInterval = 1000 / 30; 
+
+  const loop = () => {
+    if (!isTargetEvent('mouse')) return
+    
+    const now = Date.now()
+    if (now - lastEmitTime > emitInterval) {
+      getJoystickDirection()
+      lastEmitTime = now
+    }
+
+    animationFrameMouseId = requestAnimationFrame(loop)
+  }
 
   const moveMouseHandler = (event: MouseEvent) => {
     if (!isTargetEvent('mouse')) return
@@ -283,6 +316,7 @@ const startMouseHandler = (event: MouseEvent) => {
   animation.value = false
   updateCenter()
   calaMouseTouchXY(event.clientX, event.clientY)
+  loop()
   removeEventListenerKeyboard()
 
   window.addEventListener('mousemove', moveMouseHandler)
@@ -314,10 +348,19 @@ const resetPosition = () => {
   radian.value = 0
   activeTouchId.value = -1
   if (isAddEventListener.value) addEventListenerKeyboard()
-  if (animationFrameId) {
-    cancelAnimationFrame(animationFrameId)
-    animationFrameId = 0
+  if (animationFramekeyboardId) {
+    cancelAnimationFrame(animationFramekeyboardId)
+    animationFramekeyboardId = 0
   }
+  if (animationFrameMouseId) {
+    cancelAnimationFrame(animationFrameMouseId)
+    animationFrameMouseId = 0
+  }
+  if(animationFrameTouchId) {
+    cancelAnimationFrame(animationFrameTouchId)
+    animationFrameTouchId = 0
+  }
+  emit('reset')
 }
 
 
@@ -339,8 +382,6 @@ const calcInnsidePosition = (dx: number, dy: number) => {
     position.x = dx
     position.y = dy
   }
-
-  getJoystickDirection()
 }
 
 
@@ -439,10 +480,10 @@ const getJoystickDirection = () => {
         <div :class="ns.e('button')"></div>
       </div>
       <div :class="ns.e('keyborad')">
-        <span :class="ns.em('keyborad', 'w')">W</span>
-        <span :class="ns.em('keyborad', 'a')">A</span>
-        <span :class="ns.em('keyborad', 's')">S</span>
-        <span :class="ns.em('keyborad', 'd')">D</span>
+        <span :class="[ns.em('keyborad', 'w'), ns.is('light', keyboardState.w)]">W</span>
+        <span :class="[ns.em('keyborad', 'a'), ns.is('light', keyboardState.a)]">A</span>
+        <span :class="[ns.em('keyborad', 's'), ns.is('light', keyboardState.s)]">S</span>
+        <span :class="[ns.em('keyborad', 'd'), ns.is('light', keyboardState.d)]">D</span>
       </div>
     </div>
 
@@ -592,6 +633,9 @@ const getJoystickDirection = () => {
     }
 
     .is-light {
+      &.oar-joystick__keyborad--w, &.oar-joystick__keyborad--a, &.oar-joystick__keyborad--s, &.oar-joystick__keyborad--d {
+        color: var(--oar-primary-color)
+      }
       &.oar-joystick__keyborad--left {
         &::before {
           border-left-color: var(--oar-primary-color);

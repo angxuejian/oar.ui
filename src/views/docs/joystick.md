@@ -57,3 +57,4 @@ rotateSpeed | 键盘控制摇杆旋转时每次增加的弧度 | number | 0.012(
 事件名 | 说明 | 类型
 --- | --- |---
 change | 操作时返回的方向、角度、弧度、力度等信息 | Function
+reset | 当摇杆回归原点时 | Function
