@@ -8,5 +8,5 @@ export type ComponentsType = {
   [key: string]: any
 }
 
-import type { JoystickChangeDataType } from './joystick'
-export type { JoystickChangeDataType }
+import type { JoystickChangeLinear8WayDataType, JoystickChangeLinear4WayDataType, JoystickChangeRotateDataType } from './joystick'
+export type { JoystickChangeLinear8WayDataType, JoystickChangeLinear4WayDataType, JoystickChangeRotateDataType }

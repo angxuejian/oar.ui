@@ -5,31 +5,32 @@ import container from 'markdown-it-container'
 import { compileScript, compileTemplate, parse } from '@vue/compiler-sfc'
 
 let index = -1
-const importComponentArray: string[] = []
+const importValueArray: string[] = []
 const demoComponentArray: any = []
 const startTitle = '<remove-code-start>'
 const endTitle = '<remove-code-end>'
 
-const createComponent = (code: string) => {
+const generateVueDemoComponent = (code: string) => {
   const sfc = parse(code) // 解析 SFC 代码
 
   index += 1
 
   const id = `demo-compoment-${index}`
   const filename = id + '.vue'
+  const reg = /import {(.*)} from ['"]vue['"]/ // 获取需要导入的方法
+  let vueImportValue: RegExpMatchArray | null = null
+
+  const getVueImportValue = (content: string) => {
+    return content.match(new RegExp(reg, 'g'))
+  }
 
   const template = compileTemplate({
     id,
     source: sfc.descriptor.template?.content || '',
     filename: filename,
   })
-  const renderFnCode = template.code
-    .replace(/import {.*} from "vue"/, '')
-    .replace('export ', '')
-    .trim()
 
-
-  let script
+  let script: any | null = null
   let scriptFnCode
   if (sfc.descriptor.scriptSetup || sfc.descriptor.script) {
     script = compileScript(sfc.descriptor, { id, inlineTemplate: true })
@@ -47,12 +48,15 @@ const createComponent = (code: string) => {
     }
   }
 
-  let render = ''
-  let importRegExp: RegExpMatchArray | null = null
-  const reg = /import {(.*)} from ['"]vue['"]/
-  if (!scriptFnCode) {
-    importRegExp = template.code.match(reg)
-    const splitCode = renderFnCode.split('function render')
+  let render: string = ''
+  const renderFnCode1 = template.code
+    .replace(/import {.*} from ["']vue["']/, '')
+    .replace('export ', '')
+    .trim()
+
+  if (!scriptFnCode && !script) {
+    vueImportValue = getVueImportValue(template.code)
+    const splitCode = renderFnCode1.split('function render')
     const variable = splitCode[0]
     const renderFn = 'function render' + splitCode[1]
     const args = template.code.match(/function render\((.*?)\) {/)
@@ -62,28 +66,30 @@ const createComponent = (code: string) => {
       ${variable}
       return ${renderFn}(${argsStr})
     }`
-
   } else {
-    importRegExp = script.content.match(new RegExp(reg, 'g'))
+    vueImportValue = getVueImportValue(script.content)
+
     render = scriptFnCode
   }
 
-  if (importRegExp) {
-    importRegExp.forEach((item) => {
-      const importComponent = item.match(reg)
-      if (importComponent) {
-        const importComponentStr = importComponent[1].split(',').map((item) => item.trim())
-        importComponentArray.push(...importComponentStr)
-      }
-    })
-  }
-
+  // 可增加样式
   // let styleFnCode
   // if (sfc.descriptor.styles.length) {
   //   const styles = compileStyle({ source: sfc.descriptor.styles[0].content, id, filename, scoped: true })
   //   styleFnCode = 'css:' + styles.code
   //   console.log(styleFnCode)
   // }
+
+  if (vueImportValue) {
+    vueImportValue.forEach((item) => {
+      const importComponent = item.match(reg)
+      if (importComponent) {
+        const importComponentStr = importComponent[1].split(',').map((item) => item.trim())
+        importValueArray.push(...importComponentStr)
+      }
+    })
+  }
+
   demoComponentArray.push(`
     const component${index} = _defineComponent({
       name: '${id}',
@@ -91,7 +97,6 @@ const createComponent = (code: string) => {
     })
   `)
   return index
-
 }
 
 const createMarkdownit = () => {
@@ -129,10 +134,10 @@ const createMarkdownit = () => {
           templateCodeContent = `<template>${codeContent}</template>`
         }
 
-        const index = createComponent(templateCodeContent)
-        const str = `<component :is='component${index}'></component>`
+        const index = generateVueDemoComponent(templateCodeContent)
+        const demoComponentStr = `<component :is='component${index}'></component>`
 
-        return `<DemoBlock code="${codeContent}">${str}${startTitle}`
+        return `<DemoBlock code="${codeContent}">${demoComponentStr}${startTitle}`
       } else {
         return `${endTitle}</DemoBlock>\n`
       }
@@ -142,6 +147,37 @@ const createMarkdownit = () => {
   return md
 }
 
+const generateVueContainer = (code: string) => {
+  const md = createMarkdownit()
+  const result = md.render(code).replace(new RegExp(`${startTitle}.*?${endTitle}`, 'gs'), '')
+  const importStr = [...new Set(importValueArray)].join(',')
+  const componentStr = demoComponentArray.join('\n')
+
+  return {
+    code: `
+     <template>
+        <div class='markdown-body'>
+          ${result}
+        </div>
+
+      </template>
+      <script setup lang='ts'>
+        import { ${importStr} } from 'vue';
+        import DemoBlock from '@VueMarkdown-runtime/demo-block/index.vue';
+        ${componentStr}
+
+      </script>
+
+      <style scoped>
+        summary {
+          user-select: none;
+        }
+      </style>
+    `,
+    map: null,
+  }
+}
+
 const vitePluginVueMarkdown = (): Plugin => {
   return {
     name: 'vite-plugin-vue-markdown',
@@ -149,32 +185,10 @@ const vitePluginVueMarkdown = (): Plugin => {
 
     transform(code, id) {
       if (id.endsWith('.md')) {
-        const md = createMarkdownit()
-        const result = md.render(code).replace(new RegExp(`${startTitle}.*?${endTitle}`, 'gs'), '')
-        const importStr = [...new Set(importComponentArray)].join(',')
-        const componentStr = demoComponentArray.join('\n')
+        const { code: newCode, map } = generateVueContainer(code)
         return {
-          code: `
-            <template>
-              <div class='markdown-body'>
-                ${result}
-              </div>
-
-            </template>
-            <script setup lang='ts'>
-              import { ${importStr} } from 'vue';
-              import DemoBlock from '@VueMarkdown/demo-block/index.vue';
-              ${componentStr}
-
-            </script>
-
-            <style scoped>
-              summary {
-                user-select: none;
-              }
-            </style>
-          `,
-          map: null,
+          code: newCode,
+          map: map,
         }
       }
     },
