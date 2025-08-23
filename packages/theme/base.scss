@@ -1,0 +1,53 @@
+@use 'sass:color';
+@use './function.scss' as *;
+@use './transtition.scss' as *;
+
+$primary-color: rgb(255, 0, 0);
+$primary-color-hover: color.adjust($primary-color, $lightness: 15%);
+$primary-color-active: color.adjust($primary-color, $lightness: -15%);
+$primary-color-disabled: color.adjust($primary-color, $saturation: -30%);
+
+$color-white: color.adjust(#ffffff, $whiteness: 15%);
+$color-black: color.adjust(#000000, $whiteness: 15%);
+$color-black-placeholder: color.adjust($color-black, $whiteness: 80%);
+$color-black-disabled: color.adjust(#F0F0F0, $saturation: -10%);
+
+$color-black-soft: color.adjust(#000000, $whiteness: 50%);;
+$color-black-mute: #282828;
+$name: '--oar-color';
+
+:root {
+  // #{$name}: #{$color};
+  // --oar-white-color: #{}
+  --oar-text-color: #{$color-black};
+  --oar-text-color-soft: #{$color-black-soft};
+  --oar-text-color-white: #{$color-white};
+  --oar-text-color-black: #{$color-black};
+  --oar-text-color-placeholder: #{$color-black-placeholder};
+  --oar-text-color-disabled: #{$color-black-disabled};
+  --oar-primary-color: #{$primary-color};
+  --oar-primary-color-hover: #{$primary-color-hover};
+  --oar-primary-color-active: #{$primary-color-active};
+  --oar-primary-color-disabled: #{$primary-color-disabled};
+  @for $i from 1 through 10 {
+    $percentage: $i * 10%;
+    --oar-primary-lighten-#{$i}: #{color.mix(white, $primary-color, $percentage)};
+  }
+
+  --oar-border-radius: 4px;
+  --oar-font-size: 14px;
+
+  --oar-line-height: 1.2;
+
+
+  --oar-border-color-hover: #999;
+  --oar-border-color-light: #bbb;
+  --oar-border-shadow: 0 0px 3px #{to-rgba(#000, 0.2)};
+  --oar-border-shadow-primary: 0 0px 3px #{to-rgba($primary-color, 0.2)};
+
+
+  --oar-scrollbar-color: #ededed;
+  --oar-scrollthumb-color: #c1c1c1;
+  --oar-scrollthumb-color-hover: #b1b1b1;
+// base small medium large
+}

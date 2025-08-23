@@ -1,0 +1,36 @@
+{
+  "name": "oar.ui",
+  "version": "1.0.0",
+  "description": "A Component Library for Vue 3",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "play": "pnpm --filter playground dev",
+    "docs": "pnpm --filter docs dev",
+    "format": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test:unit": "pnpm --filter packages test"
+  },
+  "keywords": [
+    "oar.ui",
+    "oar",
+    "component library",
+    "ui",
+    "vue"
+  ],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.14.0",
+  "devDependencies": {
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "eslint": "^9.33.0",
+    "eslint-plugin-unused-imports": "^4.2.0",
+    "eslint-plugin-vue": "9.30.0",
+    "jiti": "^2.5.1",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "vue-tsc": "^3.0.6"
+  }
+}
