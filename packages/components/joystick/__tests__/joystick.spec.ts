@@ -70,22 +70,20 @@ describe('Joystick.vue', () => {
     wrapper.unmount()
   })
 
-  // it('should emit "change" event when key w is pressed', async () => {
-  //   const wrapper = mount(Joystick)
+  it('should emit "change" event when key w is pressed', async () => {
+    const wrapper = mount(Joystick)
 
-  //   await window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }))
-  //   await new Promise(resolve => setTimeout(resolve, 100))
+    await window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }))
+    await new Promise(resolve => setTimeout(resolve, 20))
+    await window.dispatchEvent(new KeyboardEvent('keyup', { key: 'w' }))
 
-  //   const emits = wrapper.emitted('change')
-  //   expect(emits).toBeTruthy()
-  //   expect(emits?.[0]?.[0]).toMatchObject({
-  //     isForward: true,
-  //     direction: 'forward'
-  //   })
-
-  //   await window.dispatchEvent(new KeyboardEvent('keyup', { key: 'w' }))
-
-  // })
+    const emits = wrapper.emitted('change')
+    expect(emits).toBeTruthy()
+    expect(emits?.[0]?.[0]).toMatchObject({
+      isForward: true,
+      direction: 'forward'
+    })
+  })
 
   it('should reset position on blur', async () => {
     const wrapper = mount(Joystick)

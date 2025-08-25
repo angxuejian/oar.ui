@@ -10,7 +10,7 @@
     "format": "prettier --write .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test:unit": "pnpm --filter packages test"
+    "test:unit": "pnpm --filter packages test:unit"
   },
   "keywords": [
     "oar.ui",

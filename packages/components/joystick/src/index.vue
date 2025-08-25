@@ -192,6 +192,7 @@ const updateKeyboardMove = () => {
       const dx = position.x + x
       const dy = position.y + y
       calcInnsidePosition(dx, dy)
+      getJoystickDirection()
     }
   }
 
