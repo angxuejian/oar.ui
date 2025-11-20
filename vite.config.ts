@@ -1,10 +1,13 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vitePluginVueMarkdown from './plugins/vite-plugin-vue-markdown'
 // import vueJsx from '@vitejs/plugin-vue-jsx'
 // import vueDevTools from 'vite-plugin-vue-devtools'
+
+const normalizePath = (p: string) => p.replace(/\\/g, '/');
+const themeBase =  normalizePath(fileURLToPath(new URL('./packages/theme/base.scss', import.meta.url)));
+
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -25,4 +28,11 @@ export default defineConfig({
       "@VueMarkdown": fileURLToPath(new URL('./plugins/vite-plugin-vue-markdown', import.meta.url)),
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@use "${themeBase}" as *;`
+      }
+    }
+  }
 })

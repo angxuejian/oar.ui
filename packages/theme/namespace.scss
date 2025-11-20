@@ -1,0 +1,38 @@
+$defaultNamespace: 'oar';
+$statePrefix: 'is-';
+
+@mixin b($block) {
+  .#{$defaultNamespace}-#{$block} {
+    @content;
+  }
+}
+
+@mixin e($element) {
+  &__#{$element} {
+    @content;
+  }
+}
+
+@mixin m($modifier) {
+  &--#{$modifier} {
+    @content;
+  }
+}
+
+@mixin em($element, $modeifier) {
+  &__#{$element}--#{$modeifier} {
+    @content;
+  }
+}
+
+@mixin be($block, $element) {
+  .#{$defaultNamespace}-#{$block}__#{$element} {
+    @content;
+  }
+}
+
+@mixin is($name) {
+  &.#{$statePrefix}#{$name} {
+    @content;
+  }
+}

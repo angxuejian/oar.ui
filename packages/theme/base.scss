@@ -1,6 +1,7 @@
 @use 'sass:color';
 @use './function.scss' as *;
 @use './transtition.scss' as *;
+@forward './namespace.scss';
 
 $primary-color: rgb(255, 0, 0);
 $primary-color-hover: color.adjust($primary-color, $lightness: 15%);

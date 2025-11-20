@@ -2,7 +2,6 @@ import * as Components from './components/main'
 import { type ComponentsType } from './components/main'
 import type { JoystickChangeLinear8WayDataType, JoystickChangeLinear4WayDataType, JoystickChangeRotateDataType } from './components/main'
 import { type App } from 'vue'
-import '../theme/base.scss'
 
 export type { JoystickChangeLinear8WayDataType, JoystickChangeLinear4WayDataType, JoystickChangeRotateDataType }
 export default {
