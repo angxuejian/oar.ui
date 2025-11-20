@@ -180,12 +180,10 @@ const updateKeyboardMove = () => {
     radian.value -= rotateSpeed
     position.x = Math.sin(radian.value) * radius.value
     position.y = -Math.cos(radian.value) * radius.value
-    getJoystickDirection()
   } else if (keyboardState.right) {
     radian.value += rotateSpeed
     position.x = Math.sin(radian.value) * radius.value
     position.y = -Math.cos(radian.value) * radius.value
-    getJoystickDirection()
   } else {
     const distance = Math.sqrt(x * x + y * y)
     if (distance > 0) {
@@ -194,7 +192,7 @@ const updateKeyboardMove = () => {
       calcInnsidePosition(dx, dy)
     }
   }
-
+  getJoystickDirection()
   animationFramekeyboardId = requestAnimationFrame(updateKeyboardMove)
 }
 
@@ -230,7 +228,7 @@ const startTouchHandler = (event: TouchEvent) => {
   if (!isTargetEvent('touch')) return
 
   let lastEmitTime = 0;
-  const emitInterval = 1000 / 30; 
+  const emitInterval = 1000 / 30;
 
   const loop = () => {
     if (!isTargetEvent('touch')) return
@@ -285,11 +283,11 @@ const startMouseHandler = (event: MouseEvent) => {
   if (!isTargetEvent('mouse')) return
 
   let lastEmitTime = 0;
-  const emitInterval = 1000 / 30; 
+  const emitInterval = 1000 / 30;
 
   const loop = () => {
     if (!isTargetEvent('mouse')) return
-    
+
     const now = Date.now()
     if (now - lastEmitTime > emitInterval) {
       getJoystickDirection()
