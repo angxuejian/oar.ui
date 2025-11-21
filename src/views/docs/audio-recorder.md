@@ -15,11 +15,6 @@
 </OarAudioRecorder>
 :::
 
-## 使用 Slot Props
-
-通过在 `trigger` 插槽中接收组件提供的 `isPressing` 与 `isRecording` 状态参数，你可以根据录音阶段动态更新触发内容的展示形式，例如切换按钮文案、样式或提示信息。
-
-
 
 ## PCM16 输出
 
@@ -38,9 +33,46 @@
 设置 `pressDelay` 属性可控制多长时间判定为开始录音（毫秒）。
 
 ::: demo
-<OarAudioRecorder >
+<OarAudioRecorder :pressDelay="300">
   <template #trigger>
-    <OarButton text>长按 200ms 开始录音</OarButton>
+    <OarButton text>长按 300ms 开始录音</OarButton>
+  </template>
+</OarAudioRecorder>
+:::
+
+## Change
+
+通过 @change 回调获取 `PCM16` 格式的音频数据 或 `Blob` 格式的音频文件。
+
+::: demo
+<template>
+  <OarAudioRecorder @change="onCallbackChange" pcm16>
+    <template #trigger>
+        <OarButton plain>按住说话 - 并输出PCM16数据</OarButton>
+    </template>
+  </OarAudioRecorder>
+</template>
+
+
+<script lang='ts' setup>
+const onCallbackChange = (data: Blob | ArrayBuffer) => {
+  if (data instanceof ArrayBuffer) {
+    console.log(data);
+  }
+}
+</script>
+:::
+
+## 使用 Slot Props
+
+通过在 `trigger` 插槽中接收组件提供的 `isPressing` 与 `isRecording` 状态参数，你可以根据录音阶段动态更新触发内容的展示形式，例如切换按钮文案、样式或提示信息。
+
+::: demo
+<OarAudioRecorder>
+  <template #trigger="{ isPressing, isRecording }">
+    <OarButton :plain="!isRecording">
+      {{ isRecording ? '录音中...' : isPressing ? '准备录音' : '按住说话' }}
+    </OarButton>
   </template>
 </OarAudioRecorder>
 :::

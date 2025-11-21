@@ -51,12 +51,13 @@ const popupRef: Ref<HTMLElement | null> = ref(null);
 const isPressing = ref<boolean>(false);
 const isRecording = ref<boolean>(false);
 
-const popupPosition = reactive<{ left: number; top: number }>({ left: 0, top: 0 });
+const popupPosition = reactive<{ left: number; top: number, opacity: number }>({ left: 0, top: 0, opacity: 0 });
 const popupStyle = computed(() => {
   return {
     left: `${popupPosition.left}px`,
     top: `${popupPosition.top}px`,
     position: 'fixed' as const,
+    opacity: popupPosition.opacity,
   };
 });
 
@@ -82,6 +83,22 @@ onBeforeUnmount(() => {
   resetRecorderData();
 });
 
+const calcPopupPosition = async () => {
+  await nextTick()
+
+  if (!triggerRef.value || !popupRef.value) return
+
+  const triggerRefrect = triggerRef.value.getBoundingClientRect();
+  const popupRect = popupRef.value.getBoundingClientRect();
+
+  // 13: 间距
+  popupPosition.left = triggerRefrect.left - popupRect.width - 13;
+  popupPosition.top = triggerRefrect.top - (popupRect.height - triggerRefrect.height) / 2;
+
+  requestAnimationFrame(() => {
+    popupPosition.opacity = 1
+  })
+}
 // 按下
 const handlePressStart = async (e: MouseEvent | TouchEvent) => {
   e.preventDefault();
@@ -94,9 +111,10 @@ const handlePressStart = async (e: MouseEvent | TouchEvent) => {
   if (pressTimer) window.clearTimeout(pressTimer);
 
   pressTimer = window.setTimeout(() => {
+    popupPosition.opacity = 0;
     isPressing.value = true;
-    console.log('1. 开始录音');
-
+    // console.log('1. 开始录音');
+    calcPopupPosition()
     startRecording();
   }, props.pressDelay);
 };
@@ -105,14 +123,14 @@ const handlePressStart = async (e: MouseEvent | TouchEvent) => {
 const handlePressEnd = (e: MouseEvent | TouchEvent) => {
   e.preventDefault();
   resetRecorderData();
-  console.log('3. 结束录音');
+  // console.log('3. 结束录音');
 };
 
 // 意外取消
 const handlePressCancel = () => {
   if (isPressing.value || isRecording.value) {
     resetRecorderData();
-    console.log('中断录音');
+    // console.log('中断录音');
     emits('cancel');
   }
 };
@@ -158,10 +176,10 @@ const startRecording = async () => {
       mediaRecorder.onstop = () => {
         const blob = new Blob(audioChunks, { type: 'audio/webm' });
         audioChunks = [];
-        console.log('4. 录制结束');
+        // console.log('4. 录制结束');
         emits('change', blob);
       };
-      console.log('2. 录制开始');
+      // console.log('2. 录制开始');
       mediaRecorder.start();
     } else {
       // 录制并change pcm16 音频
@@ -179,20 +197,18 @@ const startRecording = async () => {
         const input = e.inputBuffer.getChannelData(0);
         pcm16AudioChunks.push(new Float32Array(input));
       };
-      console.log('2. pcm16 录制开始');
+      // console.log('2. pcm16 录制开始');
     }
   } catch (error: any) {
     isRecording.value = false;
     resetRecorderData();
     emits('error', error);
-    alert(error)
   }
 };
 
 // 结束并销毁录制音频
 const stopRecording = () => {
   isRecording.value = false;
-  console.log('hi下？')
   if (!props.pcm16) {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
@@ -228,7 +244,7 @@ const stopRecording = () => {
       const pcm16Buffer = floatTo16BitPCM(merged);
       emits('change', pcm16Buffer);
       pcm16AudioChunks = [];
-      console.log('4. pcm16 录制结束');
+      // console.log('4. pcm16 录制结束');
     }
   }
 
@@ -238,23 +254,11 @@ const stopRecording = () => {
 
 // 准备绘制音频图
 const startCanvasVisualization = async () => {
-  await nextTick(); // 等 Vue 渲染 popup
-  await new Promise(requestAnimationFrame); // 等浏览器布局完成
-  await new Promise(requestAnimationFrame); // 等浏览器布局完成
-  await new Promise(requestAnimationFrame); // 等浏览器布局完成
 
-
-  if (!stream || !triggerRef.value || !popupRef.value || !canvasRef.value) return;
+  if (!stream || !canvasRef.value) return;
   const canvas = canvasRef.value;
   ctx = canvas.getContext('2d');
   if (!ctx) return;
-
-  const triggerRefrect = triggerRef.value.getBoundingClientRect();
-  const popupRect = popupRef.value.getBoundingClientRect();
-
-  // 13: 间距
-  popupPosition.left = triggerRefrect.left - popupRect.width - 13;
-  popupPosition.top = triggerRefrect.top - (popupRect.height - triggerRefrect.height) / 2;
 
   const dpr = window.devicePixelRatio || 1;
   const rect = canvasRef.value.getBoundingClientRect();
@@ -404,7 +408,11 @@ const draw = () => {
     const yTop = midCenter - heightHalf;
     const yBottom = midCenter;
 
-    ctx.fillStyle = '#005aff';
+    // 获取 scss 变量
+    const rootStyles = getComputedStyle(document.documentElement);
+    const primaryColor = rootStyles.getPropertyValue('--js-primary-color').trim();
+
+    ctx.fillStyle = primaryColor || 'red';
     ctx.fillRect(x, yTop, barWidth, heightHalf);
     ctx.fillRect(x, yBottom, barWidth, heightHalf);
   }
