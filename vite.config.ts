@@ -11,6 +11,7 @@ const themeBase =  normalizePath(fileURLToPath(new URL('./packages/theme/base.sc
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/oar.ui/',
   plugins: [
     vue({include: [/\.vue$/, /\.md$/] }),
     vitePluginVueMarkdown(),

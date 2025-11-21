@@ -1,0 +1,30 @@
+name: release oar.ui
+
+# 执行action的条件
+# 当main分支 push事件触发时执行任务
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release-html: # job名称
+    runs-on: ubuntu-latest # 在GitHub托管的新虚拟机上执行(https://docs.github.com/zh/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idruns-on)
+    steps:
+      - uses: actions/checkout@v3 #从仓库拉出主分支
+      - uses: actions/setup-node@v3 #设置node版本
+        with:
+          node-version: '20.11.1' # 设置指定node版本
+
+      - name: Run project build 
+        run: npm install && npm run build
+
+      - name: Run deploy github pages
+        uses: JamesIves/github-pages-deploy-action@releases/v4 # 使用第三方部署包(https://github.com/JamesIves/github-pages-deploy-action)
+        with: 
+          # 1. 设置个人令牌token, 勾选 repo 权限, 生成token;
+          # 2. 目标仓库/secrets下新建 DEPLOY_TOKEN(与下方名称保持一致即可), 将第一步生成的token复制到 DEPLOY_TOKEN的value下;
+          token: ${{ secrets.DEPLOY_TOKEN }} # 当前仓库/secrets 下设置的变量
+          repository-name: angxuejian/angxuejian.github.io # 目标仓库
+          branch: main # 目标仓库下的指定分支
+          folder: dist # npm run build打包后生成的静态文件位置
+          target-folder: oar.ui #目标仓库下的指定分支/文件夹
