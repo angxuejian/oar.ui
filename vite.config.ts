@@ -31,7 +31,8 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@use "${themeBase}" as *;`
+        additionalData: `@use "${themeBase}" as *;`,
+        api: 'modern-compiler',
       }
     }
   }

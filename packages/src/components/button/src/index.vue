@@ -33,7 +33,7 @@ const buttonClass = computed(() => {
 </script>
 
 <template>
-  <button v-on="$attrs" :class="buttonClass" :disabled="disabled">
+  <button v-bind="$attrs" :class="buttonClass" :disabled="disabled">
     <svg v-if="props.loading && !props.disabled" class="svg-container" viewBox="0 0 50 50">
       <circle cx="25" cy="25" r="20" class="circle-box"></circle>
     </svg>
