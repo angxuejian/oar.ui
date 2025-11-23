@@ -1,26 +1,3 @@
-<template>
-  <div :class="ns.b()">
-    <div
-      ref="triggerRef"
-      :class="ns.e('trigger')"
-      @mousedown="handlePressStart"
-      @touchstart.prevent="handlePressStart"
-      @touchend.prevent="handlePressEnd"
-      @touchcancel.prevent="handlePressCancel"
-    >
-      <slot name="trigger" :is-pressing="isPressing" :is-recording="isRecording"></slot>
-    </div>
-
-    <teleport to="body">
-      <Transition>
-        <div v-if="isPressing" ref="popupRef" :class="ns.b('popup')" :style="popupStyle">
-          <canvas ref="canvasRef"></canvas>
-        </div>
-      </Transition>
-    </teleport>
-  </div>
-</template>
-
 <script lang="ts" setup>
 import { computed, reactive, ref, type Ref, nextTick, onBeforeUnmount } from 'vue';
 import { type UseCommonProps, useCommonComputed, useNamespace } from '@OarUI/hooks';
@@ -432,6 +409,23 @@ const floatTo16BitPCM = (float32Array: Float32Array): ArrayBuffer => {
   return buffer;
 };
 </script>
+
+<template>
+  <div :class="ns.b()">
+    <div ref="triggerRef" :class="ns.e('trigger')" @mousedown="handlePressStart" @touchstart.prevent="handlePressStart"
+      @touchend.prevent="handlePressEnd" @touchcancel.prevent="handlePressCancel">
+      <slot name="trigger" :is-pressing="isPressing" :is-recording="isRecording"></slot>
+    </div>
+
+    <teleport to="body">
+      <Transition>
+        <div v-if="isPressing" ref="popupRef" :class="ns.b('popup')" :style="popupStyle">
+          <canvas ref="canvasRef"></canvas>
+        </div>
+      </Transition>
+    </teleport>
+  </div>
+</template>
 
 <style lang="scss" scoped>
 @include b('audio-recorder') {
