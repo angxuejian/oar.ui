@@ -3,7 +3,7 @@ export { default as OarInput } from './input'
 export { default as OarScrollbar } from './scrollbar'
 export { default as OarJoystick } from './joystick'
 export { default as OarAudioRecorder } from './audio-recorder'
-
+export { default as OarWindow } from './window'
 
 export type ComponentsType = {
   [key: string]: any

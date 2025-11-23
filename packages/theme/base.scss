@@ -34,8 +34,11 @@ $name: '--oar-color';
     $percentage: $i * 10%;
     --oar-primary-lighten-#{$i}: #{color.mix(white, $primary-color, $percentage)};
   }
+  --oar-black: #000000;
+  --oar-white: #ffffff;
 
   --oar-border-radius: 4px;
+  --oar-border-radius-medium: 8px;
   --oar-font-size: 14px;
 
   --oar-line-height: 1.2;
@@ -44,6 +47,8 @@ $name: '--oar-color';
   --oar-border-color-hover: #999;
   --oar-border-color-light: #bbb;
   --oar-border-shadow: 0 0px 3px #{to-rgba(#000, 0.2)};
+  --oar-border-shadow-medium: 0 0px 6px #{to-rgba(#000, 0.2)};
+
   --oar-border-shadow-primary: 0 0px 3px #{to-rgba($primary-color, 0.2)};
 
 
@@ -53,4 +58,16 @@ $name: '--oar-color';
 // base small medium large
 
   --js-primary-color: #{$primary-color};
+}
+
+* {
+  user-select: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  padding: 0;
+  // font-size: inherit;
+  // font-weight: normal;
+  // line-height: inherit;
 }
