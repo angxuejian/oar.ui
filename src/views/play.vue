@@ -2,14 +2,14 @@
 import OarButton from '@OarUI/components/button'
 import { ref } from 'vue'
 
-const isShow = ref(true)
+const isShow = ref(false)
 const handlerClick = () => {
   isShow.value = !isShow.value
 }
 const pos = { x: 0, y: 0 }
 
 setTimeout(() => {
-  pos.x = 100
+  pos.x = 2000
   pos.y = 300
   console.log('已更新')
 }, 2000)

@@ -59,6 +59,22 @@ describe('Window.vue', () => {
   })
 
   it('should use defaultPosition when center = false', async () => {
+    // mock containerRect
+    const fakeContainer = document.createElement('div')
+    fakeContainer.style.width = '800px'
+    fakeContainer.style.height = '600px'
+    document.body.append(fakeContainer)
+
+    // patch querySelector
+    vi.spyOn(document, 'querySelector').mockReturnValue(fakeContainer)
+
+    // mock getBoundingClientRect
+    vi.spyOn(fakeContainer, 'getBoundingClientRect').mockReturnValue({
+      width: 800,
+      height: 600,
+      x: 0,
+      y: 0,
+    })
     const wrapper = mount(Window, {
       attachTo: document.body,
       global: {
@@ -73,10 +89,15 @@ describe('Window.vue', () => {
       },
     })
 
-    // 等待 watch(show) 完成
-    await wrapper.vm.$nextTick()
-    await vi.runAllTimers()
-    await vi.runAllTimers()
+    vi.spyOn(wrapper.vm.windowRef!, 'getBoundingClientRect').mockReturnValue({
+      width: 200,
+      height: 100,
+    })
+
+    await wrapper.vm.$nextTick() // 等待 watch(show) 完成
+    await vi.runAllTimers() // 等待 requestAnimationFrame
+    await vi.runAllTimers() // 等待 requestAnimationFrame
+    await nextTick() // 等待 computed
 
     const style = wrapper.find('.oar-window').attributes('style')
     expect(style).toContain('translate(50px, 100px)')

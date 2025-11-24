@@ -42,10 +42,12 @@ const targetPosition = { x: 0, y: 0 }
 
 // 对 props.defaultPosition 初始化
 const initPosition = () => {
-  position.x = props.defaultPosition.x
-  position.y = props.defaultPosition.y
-  targetPosition.x = props.defaultPosition.x
-  targetPosition.y = props.defaultPosition.y
+
+  const clampedPosition = clampPosition(props.defaultPosition.x, props.defaultPosition.y)
+  position.x = clampedPosition.x
+  position.y = clampedPosition.y
+  targetPosition.x = clampedPosition.x
+  targetPosition.y = clampedPosition.y
 }
 
 const windowStyle = computed(() => {
@@ -95,10 +97,6 @@ watch(
   async (newV) => {
     if (!newV) return
 
-    if (!props.center) {
-      initPosition()
-    }
-
     await nextTick()
     await new Promise((resolve) => requestAnimationFrame(resolve))
     await new Promise((resolve) => requestAnimationFrame(resolve))
@@ -111,6 +109,8 @@ watch(
 
     if (props.center) {
       initCenterPosition()
+    } else {
+      initPosition()
     }
 
     // 可扩展监听 containerEl 变化; 根据 旧位置与旧容器的占比 * 新容器宽高 = 新位置
