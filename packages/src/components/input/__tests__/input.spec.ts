@@ -103,7 +103,6 @@ describe('Input.vue', () => {
 
     await eyeIcon.trigger('click')
     expect(input.attributes('type')).toBe('password')
-
   })
 
   it('should apply correct maxlength value', async () => {
@@ -116,7 +115,6 @@ describe('Input.vue', () => {
     const inputElement = wrapper.find('input')
     expect(inputElement.attributes('maxlength')).toBe('10')
   })
-
 
   it('should apply readonly attribute when readonly prop is true', () => {
     const wrapper = mount(Input, {

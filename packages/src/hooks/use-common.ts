@@ -1,4 +1,4 @@
-import { computed } from 'vue';
+import { computed } from 'vue'
 import { reactive } from 'vue'
 
 interface GlobalConfigType {
@@ -12,9 +12,8 @@ const globalConfig = reactive<GlobalConfigType>({
 })
 
 export interface UseCommonProps {
-  default?: boolean | null;
+  default?: boolean | null
 }
-
 
 /**
  * useCommonComputed
@@ -26,8 +25,7 @@ export interface UseCommonProps {
 export function useCommonComputed<T extends UseCommonProps>(props: T) {
   const THEME_DEFAULT = computed(() => {
     return (props && props?.default) || globalConfig.isDefault
-  });
+  })
 
-
-  return THEME_DEFAULT;
+  return THEME_DEFAULT
 }

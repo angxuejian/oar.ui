@@ -1,1 +1,1 @@
-export * from './v-click';
+export * from './v-click'

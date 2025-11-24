@@ -57,10 +57,12 @@ describe('Joystick.vue', () => {
       button: 0,
     })
 
-    window.dispatchEvent(new MouseEvent('mousemove', {
-      clientX: 170,
-      clientY: 80,
-    }))
+    window.dispatchEvent(
+      new MouseEvent('mousemove', {
+        clientX: 170,
+        clientY: 80,
+      }),
+    )
 
     window.dispatchEvent(new MouseEvent('mouseup'))
 
@@ -74,14 +76,14 @@ describe('Joystick.vue', () => {
     const wrapper = mount(Joystick)
 
     await window.dispatchEvent(new KeyboardEvent('keydown', { key: 'w' }))
-    await new Promise(resolve => setTimeout(resolve, 20))
+    await new Promise((resolve) => setTimeout(resolve, 20))
     await window.dispatchEvent(new KeyboardEvent('keyup', { key: 'w' }))
 
     const emits = wrapper.emitted('change')
     expect(emits).toBeTruthy()
     expect(emits?.[0]?.[0]).toMatchObject({
       isForward: true,
-      direction: 'forward'
+      direction: 'forward',
     })
   })
 

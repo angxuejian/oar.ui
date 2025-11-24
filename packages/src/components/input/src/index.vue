@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { SquareX, Eye, EyeClosed } from 'lucide-vue-next'
 import { ref, type Ref, computed } from 'vue'
-import { type UseCommonProps, useCommonComputed, useFocusControls, useNamespace } from '@OarUI/hooks'
+import {
+  type UseCommonProps,
+  useCommonComputed,
+  useFocusControls,
+  useNamespace,
+} from '@OarUI/hooks'
 const ns = useNamespace('input')
 
 const [model, modifiers] = defineModel({
@@ -14,13 +19,12 @@ const [model, modifiers] = defineModel({
 })
 const emit = defineEmits(['focus', 'blur', 'input', 'clear'])
 
-
 interface Props {
-  clearable?: boolean,
-  placeholder?: string,
-  type?: 'text' | 'password',
-  maxlength?: number | string,
-  readonly?: boolean,
+  clearable?: boolean
+  placeholder?: string
+  type?: 'text' | 'password'
+  maxlength?: number | string
+  readonly?: boolean
   disabled?: boolean
 }
 
@@ -29,7 +33,7 @@ const props = withDefaults(defineProps<Props & UseCommonProps>(), {
   clearable: false,
   placeholder: '',
 })
-const THEME_DEFAULT = useCommonComputed(props);
+const THEME_DEFAULT = useCommonComputed(props)
 
 const modelLength = computed(() => {
   return typeof model.value === 'string' ? model.value.length : 0
@@ -37,17 +41,17 @@ const modelLength = computed(() => {
 const inputMaxlength = computed(() => {
   const n = typeof props.maxlength !== 'undefined' ? absRoundNumber(props.maxlength) : NaN
   return Number.isNaN(n) ? undefined : n
-});
+})
 const inputType = computed(() => {
   if (props.type === 'password') {
-    if (isShowPassword.value) return 'text';
+    if (isShowPassword.value) return 'text'
     else return 'password'
   } else {
     return props.type
   }
 })
 
-const isShowPassword = ref<boolean>(false);
+const isShowPassword = ref<boolean>(false)
 const wrapperRef: Ref = ref()
 const inputRef: Ref = ref()
 const { isFocused, handleClick, handleBlur, handleFocus } = useFocusControls(wrapperRef, inputRef, {
@@ -59,9 +63,9 @@ const { isFocused, handleClick, handleBlur, handleFocus } = useFocusControls(wra
   },
 })
 
-const absRoundNumber = (num: string | number) : number => {
+const absRoundNumber = (num: string | number): number => {
   return Math.abs(Math.round(Number(num)))
-};
+}
 
 const handleInput = (e: Event) => {
   emit('input', e)
@@ -78,28 +82,37 @@ const clear = () => {
   emit('clear')
 }
 
-
-defineExpose({ ref: inputRef, clear, focus: () => inputRef.value.focus(), blur: () => inputRef.value.blur() })
+defineExpose({
+  ref: inputRef,
+  clear,
+  focus: () => inputRef.value.focus(),
+  blur: () => inputRef.value.blur(),
+})
 </script>
 
 <template>
   <input
-      v-if="THEME_DEFAULT"
-      ref="inputRef"
-      v-model="model"
-      @blur="handleBlur"
-      @focus="handleFocus"
-      @input="handleInput"
-      v-bind="$attrs"
-      :class="[ns.e('default')]"
-      :placeholder="props.placeholder"
-      :maxlength="inputMaxlength"
-      :readonly="props.readonly"
-      :disabled="props.disabled"
-      :type="inputType"
-    />
+    v-if="THEME_DEFAULT"
+    ref="inputRef"
+    v-model="model"
+    @blur="handleBlur"
+    @focus="handleFocus"
+    @input="handleInput"
+    v-bind="$attrs"
+    :class="[ns.e('default')]"
+    :placeholder="props.placeholder"
+    :maxlength="inputMaxlength"
+    :readonly="props.readonly"
+    :disabled="props.disabled"
+    :type="inputType"
+  />
 
-  <div v-else ref="wrapperRef" @click="handleClick" :class="[ns.b(), ns.is('focus', isFocused), ns.is('disabled', props.disabled)]">
+  <div
+    v-else
+    ref="wrapperRef"
+    @click="handleClick"
+    :class="[ns.b(), ns.is('focus', isFocused), ns.is('disabled', props.disabled)]"
+  >
     <input
       ref="inputRef"
       v-model="model"
@@ -127,12 +140,16 @@ defineExpose({ ref: inputRef, clear, focus: () => inputRef.value.focus(), blur: 
     </template>
 
     <template v-if="props.type === 'password'">
-      <component :class="[
-        ns.e('eye'),
-        ns.is('show', !!model),
-        ns.is('hide', !model),
-        ns.is('left', props.clearable)
-      ]" @click="isShowPassword = !isShowPassword" :is="isShowPassword ? Eye : EyeClosed"></component>
+      <component
+        :class="[
+          ns.e('eye'),
+          ns.is('show', !!model),
+          ns.is('hide', !model),
+          ns.is('left', props.clearable),
+        ]"
+        @click="isShowPassword = !isShowPassword"
+        :is="isShowPassword ? Eye : EyeClosed"
+      ></component>
     </template>
 
     <template v-if="inputMaxlength">
@@ -141,9 +158,7 @@ defineExpose({ ref: inputRef, clear, focus: () => inputRef.value.focus(), blur: 
   </div>
 </template>
 
-
 <style lang="scss" scoped>
-
 .oar-input {
   display: inline-flex;
   align-items: center;
@@ -203,19 +218,21 @@ defineExpose({ ref: inputRef, clear, focus: () => inputRef.value.focus(), blur: 
     &::placeholder {
       color: var(--oar-text-color-placeholder);
     }
-    &[type="password"]::-webkit-toggle-password { /*chrome*/
-      -webkit-appearance: none!important;
-      display: none!important;
+    &[type='password']::-webkit-toggle-password {
+      /*chrome*/
+      -webkit-appearance: none !important;
+      display: none !important;
     }
-    &[type="password"]::-moz-ui-password { /*firefox*/
-      -moz-appearance: none!important;
-      display: none!important;
+    &[type='password']::-moz-ui-password {
+      /*firefox*/
+      -moz-appearance: none !important;
+      display: none !important;
     }
-    &[type="password"]::-ms-reveal { /*edge*/
-      display: none!important;
+    &[type='password']::-ms-reveal {
+      /*edge*/
+      display: none !important;
     }
   }
-
 
   .icon {
     cursor: pointer;
@@ -250,7 +267,6 @@ defineExpose({ ref: inputRef, clear, focus: () => inputRef.value.focus(), blur: 
     user-select: none;
   }
 
-
   &__length {
     display: inline-block;
     height: 20px;
@@ -261,7 +277,6 @@ defineExpose({ ref: inputRef, clear, focus: () => inputRef.value.focus(), blur: 
     @extend .is-left;
     color: var(--oar-text-color-soft);
   }
-
 
   .is-hide {
     opacity: 0;

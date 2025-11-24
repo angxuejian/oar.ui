@@ -1,8 +1,8 @@
 import { ref, type Ref, watch } from 'vue'
 
 type eventListType = {
-    afterFocus?: (e: FocusEvent) => void,
-    afterBlur?: (e: FocusEvent) => void
+  afterFocus?: (e: FocusEvent) => void
+  afterBlur?: (e: FocusEvent) => void
 }
 
 /**
@@ -18,37 +18,38 @@ type eventListType = {
  *   - handleFocus: 聚焦事件处理
  *   - handleBlur: 失焦事件处理
  */
-export function useFocusControls(wrapperRef: Ref<HTMLElement>, targetRef: Ref<HTMLElement>, { afterFocus, afterBlur }: eventListType = {}) {
-    watch(wrapperRef, (el) => {
-        if (el) {
-            el.setAttribute('tabindex', '-1')
-        }
-    })
-
-
-    const isFocused = ref(false)
-
-    const handleFocus = (e: FocusEvent) => {
-        if (isFocused.value) return;
-
-        isFocused.value = true
-        afterFocus?.(e);
+export function useFocusControls(
+  wrapperRef: Ref<HTMLElement>,
+  targetRef: Ref<HTMLElement>,
+  { afterFocus, afterBlur }: eventListType = {},
+) {
+  watch(wrapperRef, (el) => {
+    if (el) {
+      el.setAttribute('tabindex', '-1')
     }
-    
-    const handleBlur = (e: FocusEvent) => {
+  })
 
-        if (e.relatedTarget && wrapperRef.value?.contains(e.relatedTarget as Node)) return
+  const isFocused = ref(false)
 
-        isFocused.value = false
-        afterBlur?.(e);
-    }
+  const handleFocus = (e: FocusEvent) => {
+    if (isFocused.value) return
 
-    const handleClick = () => {
-        if (!targetRef.value) return;
+    isFocused.value = true
+    afterFocus?.(e)
+  }
 
-        targetRef.value.focus()
-    }
+  const handleBlur = (e: FocusEvent) => {
+    if (e.relatedTarget && wrapperRef.value?.contains(e.relatedTarget as Node)) return
 
-    return { isFocused, handleClick, handleFocus, handleBlur }
+    isFocused.value = false
+    afterBlur?.(e)
+  }
 
+  const handleClick = () => {
+    if (!targetRef.value) return
+
+    targetRef.value.focus()
+  }
+
+  return { isFocused, handleClick, handleFocus, handleBlur }
 }

@@ -11,12 +11,11 @@ $primary-color-disabled: color.adjust($primary-color, $saturation: -30%);
 $color-white: color.adjust(#ffffff, $whiteness: 15%);
 $color-white-soft: color.adjust(#ffffff, $lightness: 50%);
 
-
 $color-black: color.adjust(#000000, $whiteness: 15%);
 $color-black-placeholder: color.adjust($color-black, $whiteness: 80%);
-$color-black-disabled: color.adjust(#F0F0F0, $saturation: -10%);
+$color-black-disabled: color.adjust(#f0f0f0, $saturation: -10%);
 
-$color-black-soft: color.adjust(#000000, $whiteness: 50%);;
+$color-black-soft: color.adjust(#000000, $whiteness: 50%);
 $color-black-mute: #282828;
 $name: '--oar-color';
 
@@ -47,7 +46,6 @@ $name: '--oar-color';
 
   --oar-line-height: 1.2;
 
-
   --oar-border-color-hover: #999;
   --oar-border-color-light: #bbb;
   --oar-border-shadow: 0 0px 3px #{to-rgba(#000, 0.2)};
@@ -55,11 +53,10 @@ $name: '--oar-color';
 
   --oar-border-shadow-primary: 0 0px 3px #{to-rgba($primary-color, 0.2)};
 
-
   --oar-scrollbar-color: #ededed;
   --oar-scrollthumb-color: #c1c1c1;
   --oar-scrollthumb-color-hover: #b1b1b1;
-// base small medium large
+  // base small medium large
 
   --js-primary-color: #{$primary-color};
 }
@@ -68,7 +65,12 @@ $name: '--oar-color';
   user-select: none;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
   padding: 0;
   // font-size: inherit;

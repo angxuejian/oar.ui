@@ -1,4 +1,3 @@
-
 import { type Ref } from 'vue'
 
 export function useThumbMouse(wrapRef: Ref, barHorizontalRef: Ref, barVerticalRef: Ref) {
@@ -9,8 +8,6 @@ export function useThumbMouse(wrapRef: Ref, barHorizontalRef: Ref, barVerticalRe
   let startScrollTop = 0
   let startX = 0
   let startScrollLeft = 0
-
-
 
   const handleMouseDown = (event: any) => {
     if (event.ctrlKey || event.button === 2) return // 防止右键点击
@@ -38,7 +35,6 @@ export function useThumbMouse(wrapRef: Ref, barHorizontalRef: Ref, barVerticalRe
     if (scrollType === 'Y') {
       const scrollTop = calcScrollValue(event, 'Y', startY, startScrollTop)
       wrapRef.value.scrollTop = scrollTop
-
     } else {
       const scrollLeft = calcScrollValue(event, 'X', startX, startScrollLeft)
       wrapRef.value.scrollLeft = scrollLeft
@@ -46,14 +42,19 @@ export function useThumbMouse(wrapRef: Ref, barHorizontalRef: Ref, barVerticalRe
   }
 
   const handleMouseUp = () => {
-    if (!isMouse) return;
+    if (!isMouse) return
 
     document.removeEventListener('mousemove', handleMouseMove, false)
     document.onselectstart = null
     isMouse = false
   }
 
-  const calcScrollValue = (event: MouseEvent, type: 'Y' | 'X', startDistance: number, startScroll: number) => {
+  const calcScrollValue = (
+    event: MouseEvent,
+    type: 'Y' | 'X',
+    startDistance: number,
+    startScroll: number,
+  ) => {
     if (type === 'Y') {
       // 移动距离
       const distance = event.clientY - startDistance
@@ -64,7 +65,6 @@ export function useThumbMouse(wrapRef: Ref, barHorizontalRef: Ref, barVerticalRe
       // 滚动距离
       const scrollTop = startScroll + distance * scrollRatio
       return scrollTop
-
     } else {
       const distance = event.clientX - startDistance
       const scrollRatio = wrapRef.value.scrollWidth / barVerticalRef.value.clientWidth
@@ -77,8 +77,8 @@ export function useThumbMouse(wrapRef: Ref, barHorizontalRef: Ref, barVerticalRe
     const { clientHeight, scrollHeight, clientWidth, scrollWidth } = wrapRef.value
 
     // 滚动条高度 = 盒子高度 / 盒子滚动区域高度 * 换算为百分比
-    const height = clientHeight === scrollHeight ? 0 : clientHeight / scrollHeight * 100
-    const width  = clientWidth === scrollWidth ? 0 : clientWidth  / scrollWidth  * 100
+    const height = clientHeight === scrollHeight ? 0 : (clientHeight / scrollHeight) * 100
+    const width = clientWidth === scrollWidth ? 0 : (clientWidth / scrollWidth) * 100
 
     return { height, width }
   }
@@ -87,8 +87,8 @@ export function useThumbMouse(wrapRef: Ref, barHorizontalRef: Ref, barVerticalRe
     const { scrollTop, clientHeight, scrollLeft, clientWidth } = event
 
     // 滚动条滚动高度 = 盒子内容滚动高度 / 盒子滚动区域高度 * 换算为百分比
-    const scrollY = scrollTop  / clientHeight * 100
-    const scrollX = scrollLeft / clientWidth  * 100
+    const scrollY = (scrollTop / clientHeight) * 100
+    const scrollX = (scrollLeft / clientWidth) * 100
 
     return { scrollY, scrollX }
   }

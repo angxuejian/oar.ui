@@ -1,23 +1,23 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { type UseCommonProps, useCommonComputed, useNamespace } from '@OarUI/hooks';
+import { computed } from 'vue'
+import { type UseCommonProps, useCommonComputed, useNamespace } from '@OarUI/hooks'
 
 interface Props {
-  type?: 'primary';
-  loading?: boolean;
-  disabled?: boolean;
-  plain?: boolean;
-  text?: boolean;
+  type?: 'primary'
+  loading?: boolean
+  disabled?: boolean
+  plain?: boolean
+  text?: boolean
 }
 const props = withDefaults(defineProps<Props & UseCommonProps>(), {
   type: 'primary',
   loading: false,
   disabled: false,
   plain: false,
-  text: false
-});
-const THEME_DEFAULT = useCommonComputed(props);
-const ns = useNamespace('button');
+  text: false,
+})
+const THEME_DEFAULT = useCommonComputed(props)
+const ns = useNamespace('button')
 
 const buttonClass = computed(() => {
   return {
@@ -26,10 +26,9 @@ const buttonClass = computed(() => {
     [ns.m('loading')]: props.loading && !props.disabled,
     [ns.is('default', THEME_DEFAULT.value)]: true,
     [ns.is('plain', !THEME_DEFAULT.value && props.plain)]: true,
-    [ns.is('text', !THEME_DEFAULT.value && !props.plain && props.text)]: true
+    [ns.is('text', !THEME_DEFAULT.value && !props.plain && props.text)]: true,
   }
-});
-
+})
 </script>
 
 <template>
@@ -43,7 +42,18 @@ const buttonClass = computed(() => {
 </template>
 
 <style scoped lang="scss">
-@mixin button-styles($bg-color, $color, $border-color, $hover-bg, $hover-color, $hover-border, $active-bg, $active-color, $active-border, $loading-color) {
+@mixin button-styles(
+  $bg-color,
+  $color,
+  $border-color,
+  $hover-bg,
+  $hover-color,
+  $hover-border,
+  $active-bg,
+  $active-color,
+  $active-border,
+  $loading-color
+) {
   background-color: $bg-color;
   color: $color;
   border-color: $border-color;
@@ -159,29 +169,49 @@ const buttonClass = computed(() => {
     border-radius: var(--oar-border-radius);
     border: 1px solid transparent;
 
-    @include button-styles(var(--oar-primary-color), // 初始背景颜色
-      var(--oar-text-color-white), // 初始文字颜色
-      var(--oar-primary-color), // 初始边框颜色
-      var(--oar-primary-color-hover), // hover 背景颜色
-      var(--oar-text-color-white), // hover 文字颜色
-      var(--oar-primary-color-hover), // hover 边框颜色
-      var(--oar-primary-color-active), // active 背景颜色
-      var(--oar-text-color-white), // active 文字颜色
-      var(--oar-primary-color-active), // active 边框颜色
-      var(--oar-text-color-white), // loading 颜色
+    @include button-styles(
+      var(--oar-primary-color),
+      // 初始背景颜色
+      var(--oar-text-color-white),
+      // 初始文字颜色
+      var(--oar-primary-color),
+      // 初始边框颜色
+      var(--oar-primary-color-hover),
+      // hover 背景颜色
+      var(--oar-text-color-white),
+      // hover 文字颜色
+      var(--oar-primary-color-hover),
+      // hover 边框颜色
+      var(--oar-primary-color-active),
+      // active 背景颜色
+      var(--oar-text-color-white),
+      // active 文字颜色
+      var(--oar-primary-color-active),
+      // active 边框颜色
+      var(--oar-text-color-white) // loading 颜色
     );
 
     &.is-plain {
-      @include button-styles(var(--oar-primary-lighten-9), // 初始背景颜色
-        var(--oar-primary-color), // 初始文字颜色
-        var(--oar-primary-lighten-5), // 初始边框颜色
-        var(--oar-primary-color), // hover 背景颜色
-        var(--oar-text-color-white), // hover 文字颜色
-        var(--oar-primary-color), // hover 边框颜色
-        var(--oar-primary-color-active), // active 背景颜色
-        var(--oar-text-color-white), // active 文字颜色
-        var(--oar-primary-color-active), // active 边框颜色
-        var(--oar-primary-lighten-5), // loading 颜色
+      @include button-styles(
+        var(--oar-primary-lighten-9),
+        // 初始背景颜色
+        var(--oar-primary-color),
+        // 初始文字颜色
+        var(--oar-primary-lighten-5),
+        // 初始边框颜色
+        var(--oar-primary-color),
+        // hover 背景颜色
+        var(--oar-text-color-white),
+        // hover 文字颜色
+        var(--oar-primary-color),
+        // hover 边框颜色
+        var(--oar-primary-color-active),
+        // active 背景颜色
+        var(--oar-text-color-white),
+        // active 文字颜色
+        var(--oar-primary-color-active),
+        // active 边框颜色
+        var(--oar-primary-lighten-5) // loading 颜色
       );
     }
 
@@ -204,16 +234,26 @@ const buttonClass = computed(() => {
         transition: 0.3s all ease;
       }
 
-      @include button-styles(transparent, // 初始背景颜色
-        var(--oar-primary-color), // 初始文字颜色
-        transparent, // 初始边框颜色
-        transparent, // hover 背景颜色
-        var(--oar-primary-color-hover), // hover 文字颜色
-        transparent, // hover 边框颜色
-        transparent, // active 背景颜色
-        var(--oar-primary-color-active), // active 文字颜色
-        transparent, // active 边框颜色
-        var(--oar-primary-lighten-5), // loading 颜色
+      @include button-styles(
+        transparent,
+        // 初始背景颜色
+        var(--oar-primary-color),
+        // 初始文字颜色
+        transparent,
+        // 初始边框颜色
+        transparent,
+        // hover 背景颜色
+        var(--oar-primary-color-hover),
+        // hover 文字颜色
+        transparent,
+        // hover 边框颜色
+        transparent,
+        // active 背景颜色
+        var(--oar-primary-color-active),
+        // active 文字颜色
+        transparent,
+        // active 边框颜色
+        var(--oar-primary-lighten-5) // loading 颜色
       );
 
       &:hover:not([disabled]):not(.oar-button--loading) {

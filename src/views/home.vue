@@ -1,10 +1,9 @@
 <template>
-
-
   <main class="main-container">
-
     <ul class="menu">
-        <li v-for="(item, index) in store.router" :key="index"> <RouterLink :to="item.path">{{ item.name }}</RouterLink> </li>
+      <li v-for="(item, index) in store.router" :key="index">
+        <RouterLink :to="item.path">{{ item.name }}</RouterLink>
+      </li>
     </ul>
 
     <div class="body">
@@ -13,13 +12,10 @@
   </main>
 </template>
 
-
 <script setup lang="ts">
-import { useRouterStore } from '@/stores/router';
+import { useRouterStore } from '@/stores/router'
 const store = useRouterStore()
-
 </script>
-
 
 <style lang="scss" scoped>
 .main-container {
@@ -43,5 +39,4 @@ ul {
   padding-top: 10px;
   padding-bottom: 50px;
 }
-
 </style>

@@ -1,11 +1,11 @@
-import type { DirectiveBinding } from "vue";
+import type { DirectiveBinding } from 'vue'
 
 export type handlerType = (e: TouchEvent | MouseEvent) => void
 
 declare global {
   interface HTMLElement {
-    __touchHandler__?: (e: TouchEvent) => void;
-    __clickHandler__?: (e: MouseEvent) => void;
+    __touchHandler__?: (e: TouchEvent) => void
+    __clickHandler__?: (e: MouseEvent) => void
   }
 }
 
@@ -18,7 +18,7 @@ declare global {
  */
 export const vClick = {
   mounted(el: HTMLElement, binding: DirectiveBinding<handlerType>) {
-    let touched = false;
+    let touched = false
 
     const handler = binding.value
 
@@ -35,16 +35,14 @@ export const vClick = {
       touched = false
     }
 
-    el.__touchHandler__ = touchHandler;
-    el.__clickHandler__ = clickHandler;
+    el.__touchHandler__ = touchHandler
+    el.__clickHandler__ = clickHandler
 
     el.addEventListener('touchstart', el.__touchHandler__, { passive: false })
     el.addEventListener('click', el.__clickHandler__)
-
   },
 
   beforeUnmount(el: HTMLElement) {
-
     if (el.__touchHandler__) {
       el.removeEventListener('touchstart', el.__touchHandler__)
       delete el.__touchHandler__
@@ -54,5 +52,5 @@ export const vClick = {
       el.removeEventListener('click', el.__clickHandler__)
       delete el.__clickHandler__
     }
-  }
+  },
 }

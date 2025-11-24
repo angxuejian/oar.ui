@@ -1,6 +1,5 @@
-
-export * from './use-common';
-export * from './use-namespace';
-export * from './use-focus-controls';
-export * from './use-click';
-export * from './use-zindex';
+export * from './use-common'
+export * from './use-namespace'
+export * from './use-focus-controls'
+export * from './use-click'
+export * from './use-zindex'

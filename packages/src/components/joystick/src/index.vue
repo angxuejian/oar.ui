@@ -1,53 +1,50 @@
 <script setup lang="ts">
-import { ref, type Ref, onMounted, reactive, computed, onUnmounted } from 'vue';
+import { ref, type Ref, onMounted, reactive, computed, onUnmounted } from 'vue'
 import { useNamespace } from '@OarUI/hooks'
 
 interface Props {
-  type?: 'linear' | 'rotate',
-  direction?: '4-way' | '8-way',
-  width?: number,
-  height?: number,
-  linearSpeed?: number,
+  type?: 'linear' | 'rotate'
+  direction?: '4-way' | '8-way'
+  width?: number
+  height?: number
+  linearSpeed?: number
   rotateSpeed?: number
 }
 
-
 export interface JoystickChangeLinear8WayDataType {
-  direction: string,
-  isForward: boolean,
-  isBackward: boolean,
-  isLeft: boolean,
-  isRight: boolean,
-  isForwardRight: boolean,
-  isForwardLeft: boolean,
-  isBackwardRight: boolean,
-  isBackwardLeft: boolean,
-  strength: number,
-  angle: number,
-  radian: number,
+  direction: string
+  isForward: boolean
+  isBackward: boolean
+  isLeft: boolean
+  isRight: boolean
+  isForwardRight: boolean
+  isForwardLeft: boolean
+  isBackwardRight: boolean
+  isBackwardLeft: boolean
+  strength: number
+  angle: number
+  radian: number
 }
 
-
 export interface JoystickChangeLinear4WayDataType {
-  direction: string,
-  isForward: boolean,
-  isBackward: boolean,
-  isLeft: boolean,
-  isRight: boolean,
-  strength: number,
-  angle: number,
-  radian: number,
+  direction: string
+  isForward: boolean
+  isBackward: boolean
+  isLeft: boolean
+  isRight: boolean
+  strength: number
+  angle: number
+  radian: number
 }
 
 export interface JoystickChangeRotateDataType {
-  direction: string,
-  isLeft: boolean,
-  isRight: boolean,
-  strength: number,
-  angle: number,
-  radian: number,
+  direction: string
+  isLeft: boolean
+  isRight: boolean
+  strength: number
+  angle: number
+  radian: number
 }
-
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'linear',
@@ -55,7 +52,7 @@ const props = withDefaults(defineProps<Props>(), {
   width: 180,
   height: 180,
   linearSpeed: 2,
-  rotateSpeed: 0.012
+  rotateSpeed: 0.012,
 })
 
 const emit = defineEmits(['change', 'reset'])
@@ -81,7 +78,7 @@ const keyboardState = reactive<{ [key: string]: boolean }>({
   s: false,
   d: false,
   left: false,
-  right: false
+  right: false,
 })
 
 let animationFramekeyboardId: number = 0
@@ -106,10 +103,7 @@ onUnmounted(() => {
   removeEventListenerKeyboard()
 })
 
-
-
 const isTargetEvent = (type: 'touch' | 'mouse' | 'keyboard') => {
-
   if (!isMouse.value && !isKeyboard.value) isTouch.value = type === 'touch'
   if (!isTouch.value && !isKeyboard.value) isMouse.value = type === 'mouse'
   if (!isTouch.value && !isMouse.value) isKeyboard.value = type === 'keyboard'
@@ -139,15 +133,17 @@ const removeEventListenerKeyboard = () => {
 
 const checkKeyboardValue = (event: KeyboardEvent) => {
   const key = event.key.toLowerCase()
-  const list = props.type === 'linear' ? ['w', 's', 'a', 'd'] : ['arrowleft', 'arrowright', ',', '.', '4', '6']
+  const list =
+    props.type === 'linear' ? ['w', 's', 'a', 'd'] : ['arrowleft', 'arrowright', ',', '.', '4', '6']
   return {
-    key, check: list.includes(key)
+    key,
+    check: list.includes(key),
   }
 }
 
 const setKeyboard = (key: string, value: boolean) => {
-  if (['arrowleft', ',', '4'].includes(key)) keyboardState['left'] = value;
-  else if (['arrowright', '.', '6'].includes(key)) keyboardState['right'] = value;
+  if (['arrowleft', ',', '4'].includes(key)) keyboardState['left'] = value
+  else if (['arrowright', '.', '6'].includes(key)) keyboardState['right'] = value
   else keyboardState[key] = value
 }
 
@@ -156,14 +152,14 @@ const keydownHandler = (e: KeyboardEvent) => {
   animation.value = false
 
   const { key, check } = checkKeyboardValue(e)
-  if (!check) return;
+  if (!check) return
   setKeyboard(key, true)
 
   if (!animationFramekeyboardId) updateKeyboardMove()
 }
 
 const updateKeyboardMove = () => {
-  animation.value = false;
+  animation.value = false
 
   const linearSpeed = props.linearSpeed // 控制小圆移动速度
   const rotateSpeed = props.rotateSpeed // 控制小圆移动弧度
@@ -200,7 +196,7 @@ const keyupHandler = (e: KeyboardEvent) => {
   if (!isTargetEvent('keyboard')) return
 
   const { key, check } = checkKeyboardValue(e)
-  if (!check) return;
+  if (!check) return
   setKeyboard(key, false)
 
   if (!Object.values(keyboardState).some(Boolean)) {
@@ -215,20 +211,19 @@ const resetKeyboardEventHandler = () => {
   resetPosition()
 }
 
-
 /**
  * touch event
  */
 
 const checkTouchThumb = (event: TouchEvent) => {
-  return Array.from(event.changedTouches).find(t => t.identifier === activeTouchId.value)
+  return Array.from(event.changedTouches).find((t) => t.identifier === activeTouchId.value)
 }
 
 const startTouchHandler = (event: TouchEvent) => {
   if (!isTargetEvent('touch')) return
 
-  let lastEmitTime = 0;
-  const emitInterval = 1000 / 30;
+  let lastEmitTime = 0
+  const emitInterval = 1000 / 30
 
   const loop = () => {
     if (!isTargetEvent('touch')) return
@@ -274,7 +269,6 @@ const startTouchHandler = (event: TouchEvent) => {
   window.addEventListener('touchend', endTouchHandler)
 }
 
-
 /**
  * mouse event
  */
@@ -282,8 +276,8 @@ const startMouseHandler = (event: MouseEvent) => {
   if (event.button !== 0) return
   if (!isTargetEvent('mouse')) return
 
-  let lastEmitTime = 0;
-  const emitInterval = 1000 / 30;
+  let lastEmitTime = 0
+  const emitInterval = 1000 / 30
 
   const loop = () => {
     if (!isTargetEvent('mouse')) return
@@ -321,7 +315,6 @@ const startMouseHandler = (event: MouseEvent) => {
   window.addEventListener('mouseup', upMouseHandler)
 }
 
-
 const updateCenter = () => {
   const outsideRect = outsideRef.value.getBoundingClientRect()
   center.x = outsideRect.left + outsideRect.width / 2
@@ -336,10 +329,10 @@ const updateCenter = () => {
 }
 
 const resetPosition = () => {
-  isTouch.value = false;
-  isMouse.value = false;
-  isKeyboard.value = false;
-  animation.value = true;
+  isTouch.value = false
+  isMouse.value = false
+  isKeyboard.value = false
+  animation.value = true
 
   position.x = 0
   position.y = 0
@@ -354,13 +347,12 @@ const resetPosition = () => {
     cancelAnimationFrame(animationFrameMouseId)
     animationFrameMouseId = 0
   }
-  if(animationFrameTouchId) {
+  if (animationFrameTouchId) {
     cancelAnimationFrame(animationFrameTouchId)
     animationFrameTouchId = 0
   }
   emit('reset')
 }
-
 
 const calaMouseTouchXY = (clientX: number, clientY: number) => {
   const dx = clientX - center.x
@@ -369,7 +361,6 @@ const calaMouseTouchXY = (clientX: number, clientY: number) => {
 }
 
 const calcInnsidePosition = (dx: number, dy: number) => {
-
   const distance = Math.sqrt(dx * dx + dy * dy)
 
   if (distance > radius.value) {
@@ -382,8 +373,10 @@ const calcInnsidePosition = (dx: number, dy: number) => {
   }
 }
 
-
-const setLinear8WayData = (angle: number, value: { strength: number, angle: number, radian: number }) => {
+const setLinear8WayData = (
+  angle: number,
+  value: { strength: number; angle: number; radian: number },
+) => {
   let direction = 'none'
 
   if (angle >= 337.5 || angle < 22.5) direction = 'forward'
@@ -405,13 +398,15 @@ const setLinear8WayData = (angle: number, value: { strength: number, angle: numb
     isForwardLeft: direction === 'forward-left',
     isBackwardRight: direction === 'backward-right',
     isBackwardLeft: direction === 'backward-left',
-    ...value
+    ...value,
   }
   emit('change', data)
 }
 
-const setLinear4WayData = (angle: number, value: { strength: number, angle: number, radian: number }) => {
-
+const setLinear4WayData = (
+  angle: number,
+  value: { strength: number; angle: number; radian: number },
+) => {
   let direction = 'none'
 
   if (angle >= 315 || angle < 45) direction = 'forward'
@@ -425,12 +420,15 @@ const setLinear4WayData = (angle: number, value: { strength: number, angle: numb
     isBackward: direction === 'backward',
     isLeft: direction === 'left',
     isRight: direction === 'right',
-    ...value
+    ...value,
   }
   emit('change', data)
 }
 
-const setRotateData = (angle: number, value: { strength: number, angle: number, radian: number }) => {
+const setRotateData = (
+  angle: number,
+  value: { strength: number; angle: number; radian: number },
+) => {
   let direction = 'none'
   if (keyboardState.left) direction = 'left'
   else if (keyboardState.right) direction = 'right'
@@ -440,7 +438,7 @@ const setRotateData = (angle: number, value: { strength: number, angle: number, 
     direction,
     isLeft: direction === 'left',
     isRight: direction === 'right',
-    ...value
+    ...value,
   }
   emit('change', data)
 }
@@ -469,11 +467,19 @@ const getJoystickDirection = () => {
 }
 </script>
 
-
 <template>
-  <div :style="`width: ${props.width}px; height: ${props.height}px;`" @contextmenu.prevent :class="ns.b()">
-    <div v-if="props.type === 'linear'" ref="outsideRef" @touchstart.prevent="startTouchHandler"
-      @mousedown.prevent="startMouseHandler" :class="[ns.e('outside'), ns.is('linear', true)]">
+  <div
+    :style="`width: ${props.width}px; height: ${props.height}px;`"
+    @contextmenu.prevent
+    :class="ns.b()"
+  >
+    <div
+      v-if="props.type === 'linear'"
+      ref="outsideRef"
+      @touchstart.prevent="startTouchHandler"
+      @mousedown.prevent="startMouseHandler"
+      :class="[ns.e('outside'), ns.is('linear', true)]"
+    >
       <div ref="innsideRef" :style="innsideStyle" :class="ns.e('innside')">
         <div :class="ns.e('button')"></div>
       </div>
@@ -485,9 +491,13 @@ const getJoystickDirection = () => {
       </div>
     </div>
 
-    <div v-else-if="props.type === 'rotate'" ref="outsideRef" @touchstart.prevent="startTouchHandler"
-      @mousedown.prevent="startMouseHandler" :class="[ns.e('outside')]">
-
+    <div
+      v-else-if="props.type === 'rotate'"
+      ref="outsideRef"
+      @touchstart.prevent="startTouchHandler"
+      @mousedown.prevent="startMouseHandler"
+      :class="[ns.e('outside')]"
+    >
       <div ref="innsideRef" :style="innsideStyle" :class="ns.e('innside')">
         <div :class="ns.e('button')"></div>
       </div>
@@ -496,10 +506,8 @@ const getJoystickDirection = () => {
         <span :class="[ns.em('keyborad', 'right'), ns.is('light', keyboardState.right)]"></span>
       </div>
     </div>
-
   </div>
 </template>
-
 
 <style lang="scss" scoped>
 .oar-joystick {
@@ -529,7 +537,6 @@ const getJoystickDirection = () => {
       border-radius: 50%;
       z-index: 1;
     }
-
   }
 
   &__innside {
@@ -563,7 +570,7 @@ const getJoystickDirection = () => {
     border-radius: 50%;
     z-index: 2;
 
-    >span {
+    > span {
       display: inline-block;
       position: absolute;
       color: #fff;
@@ -631,8 +638,11 @@ const getJoystickDirection = () => {
     }
 
     .is-light {
-      &.oar-joystick__keyborad--w, &.oar-joystick__keyborad--a, &.oar-joystick__keyborad--s, &.oar-joystick__keyborad--d {
-        color: var(--oar-primary-color)
+      &.oar-joystick__keyborad--w,
+      &.oar-joystick__keyborad--a,
+      &.oar-joystick__keyborad--s,
+      &.oar-joystick__keyborad--d {
+        color: var(--oar-primary-color);
       }
       &.oar-joystick__keyborad--left {
         &::before {

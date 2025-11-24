@@ -9,9 +9,10 @@
 }
 
 @function to-rgba($color, $alpha: 1) {
-  @return rgba(color.channel($color, 'red', $space: rgb), 
-  color.channel($color, 'green', $space: rgb), 
-  color.channel($color, 'blue', $space: rgb), 
-  $alpha);
+  @return rgba(
+    color.channel($color, 'red', $space: rgb),
+    color.channel($color, 'green', $space: rgb),
+    color.channel($color, 'blue', $space: rgb),
+    $alpha
+  );
 }
-

@@ -32,7 +32,7 @@ function setupMocks() {
     state = 'inactive'
     ondataavailable: any = null
     onstop: any = null
-    constructor(stream: any, options: any) {}
+    constructor() {}
     start() {
       this.state = 'recording'
     }
@@ -46,7 +46,7 @@ function setupMocks() {
       }
     }
   }
-  // @ts-ignore
+
   global.MediaRecorder = MockMediaRecorder
 
   // 3. AudioContext & Nodes
@@ -64,6 +64,7 @@ function setupMocks() {
     bufferSize: number
     constructor(bufferSize: number) {
       this.bufferSize = bufferSize
+      // eslint-disable-next-line
       scriptProcessorParams = this
     }
     connect() {}
@@ -80,7 +81,7 @@ function setupMocks() {
     createAnalyser() {
       return new MockAnalyser()
     }
-    createScriptProcessor(bufferSize: number, inputChannels: number, outputChannels: number) {
+    createScriptProcessor(bufferSize: number) {
       return new MockScriptProcessor(bufferSize)
     }
     createGain() {
@@ -98,15 +99,16 @@ function setupMocks() {
         getChannelData: () => new Float32Array(length),
       }
     }
-    resume() { return Promise.resolve() }
-    close() { return Promise.resolve() }
+    resume() {
+      return Promise.resolve()
+    }
+    close() {
+      return Promise.resolve()
+    }
   }
 
-  // @ts-ignore
   global.AudioContext = MockAudioContext
-  // @ts-ignore
   global.window.AudioContext = MockAudioContext
-  // @ts-ignore
   global.window.webkitAudioContext = MockAudioContext
 
   // 4. Canvas Mock
@@ -152,7 +154,7 @@ describe('AudioRecorder.vue', () => {
   it('should start pressing after pressDelay', async () => {
     wrapper = mount(AudioRecorder, {
       props: { pressDelay: 200 },
-      attachTo: document.body // 推荐加上，虽然这个测试不加可能也能过
+      attachTo: document.body, // 推荐加上，虽然这个测试不加可能也能过
     })
 
     const trigger = wrapper.find('.oar-audio-recorder__trigger')
@@ -169,7 +171,7 @@ describe('AudioRecorder.vue', () => {
     // 这样 Teleport 才能正确找到父节点，避免 insertBefore null 错误
     wrapper = mount(AudioRecorder, {
       props: { pressDelay: 200 },
-      attachTo: document.body
+      attachTo: document.body,
     })
 
     await wrapper.find('.oar-audio-recorder__trigger').trigger('mousedown')
@@ -182,10 +184,9 @@ describe('AudioRecorder.vue', () => {
   })
 
   it('should stop recording after mouseup', async () => {
-
     wrapper = mount(AudioRecorder, {
       props: { pressDelay: 200 },
-      attachTo: document.body
+      attachTo: document.body,
     })
 
     // 1. 开始录音
@@ -206,7 +207,7 @@ describe('AudioRecorder.vue', () => {
   it('should emit cancel on unexpected cancel', async () => {
     wrapper = mount(AudioRecorder, {
       props: { pressDelay: 200 },
-      attachTo: document.body
+      attachTo: document.body,
     })
 
     await wrapper.find('.oar-audio-recorder__trigger').trigger('mousedown')
@@ -220,7 +221,7 @@ describe('AudioRecorder.vue', () => {
     const getUserMediaMock = vi.fn().mockRejectedValue(new Error('NotAllowedError'))
     Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
       value: getUserMediaMock,
-      writable: true
+      writable: true,
     })
 
     wrapper = mount(AudioRecorder, { attachTo: document.body })
@@ -252,7 +253,7 @@ describe('AudioRecorder.vue', () => {
   it('should emit change() with ArrayBuffer in pcm16 mode', async () => {
     wrapper = mount(AudioRecorder, {
       props: { pcm16: true },
-      attachTo: document.body
+      attachTo: document.body,
     })
 
     await wrapper.find('.oar-audio-recorder__trigger').trigger('mousedown')
@@ -264,7 +265,7 @@ describe('AudioRecorder.vue', () => {
       const mockInputBuffer = {
         getChannelData: () => new Float32Array(4096).fill(0.5),
         numberOfChannels: 1,
-        sampleRate: 48000
+        sampleRate: 48000,
       }
       scriptProcessorParams.onaudioprocess({ inputBuffer: mockInputBuffer })
     }

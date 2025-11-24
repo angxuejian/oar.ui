@@ -2,19 +2,17 @@
 
 用于录制音频，并输出 Blob 或 PCM16 ArrayBuffer 数据。
 
-
 ## 用法
 
 通过点击触发元素开始录音，松开后自动结束并返回录音数据。
 
 ::: demo
 <OarAudioRecorder>
-  <template #trigger>
-    <OarButton>按住说话</OarButton>
-  </template>
+<template #trigger>
+<OarButton>按住说话</OarButton>
+</template>
 </OarAudioRecorder>
 :::
-
 
 ## PCM16 输出
 
@@ -22,9 +20,9 @@
 
 ::: demo
 <OarAudioRecorder pcm16>
-  <template #trigger>
-    <OarButton plain>PCM16 输出</OarButton>
-  </template>
+<template #trigger>
+<OarButton plain>PCM16 输出</OarButton>
+</template>
 </OarAudioRecorder>
 :::
 
@@ -34,9 +32,9 @@
 
 ::: demo
 <OarAudioRecorder :pressDelay="300">
-  <template #trigger>
-    <OarButton text>长按 300ms 开始录音</OarButton>
-  </template>
+<template #trigger>
+<OarButton text>长按 300ms 开始录音</OarButton>
+</template>
 </OarAudioRecorder>
 :::
 
@@ -46,13 +44,12 @@
 
 ::: demo
 <template>
-  <OarAudioRecorder @change="onCallbackChange" pcm16>
-    <template #trigger>
-        <OarButton plain>按住说话 - 并输出PCM16数据</OarButton>
-    </template>
-  </OarAudioRecorder>
+<OarAudioRecorder @change="onCallbackChange" pcm16>
+<template #trigger>
+<OarButton plain>按住说话 - 并输出PCM16数据</OarButton>
 </template>
-
+</OarAudioRecorder>
+</template>
 
 <script lang='ts' setup>
 const onCallbackChange = (data: Blob | ArrayBuffer) => {
@@ -61,6 +58,7 @@ const onCallbackChange = (data: Blob | ArrayBuffer) => {
   }
 }
 </script>
+
 :::
 
 ## 使用 Slot Props
@@ -69,33 +67,31 @@ const onCallbackChange = (data: Blob | ArrayBuffer) => {
 
 ::: demo
 <OarAudioRecorder>
-  <template #trigger="{ isPressing, isRecording }">
-    <OarButton :plain="!isRecording">
-      {{ isRecording ? '录音中...' : isPressing ? '准备录音' : '按住说话' }}
-    </OarButton>
-  </template>
+<template #trigger="{ isPressing, isRecording }">
+<OarButton :plain="!isRecording">
+{{ isRecording ? '录音中...' : isPressing ? '准备录音' : '按住说话' }}
+</OarButton>
+</template>
 </OarAudioRecorder>
 :::
 
-
 ## AudioRecorder Attributes
 
-| 属性名        | 说明                         | 类型      | 默认值   |
-| ---------- | -------------------------- | ------- | ----- |
-| pcm16      | 是否输出 PCM16 格式（ArrayBuffer） | boolean | false |
-| pressDelay | 长按触发录音的判定时间（毫秒）            | number  | 150   |
+| 属性名     | 说明                               | 类型    | 默认值 |
+| ---------- | ---------------------------------- | ------- | ------ |
+| pcm16      | 是否输出 PCM16 格式（ArrayBuffer） | boolean | false  |
+| pressDelay | 长按触发录音的判定时间（毫秒）     | number  | 150    |
 
 ## AudioRecorder Emits
 
-| 事件名    | 说明          | 回调参数                   |
-| ------ | ----------- | ---------------------- |
+| 事件名 | 说明                   | 回调参数                |
+| ------ | ---------------------- | ----------------------- |
 | change | 录音完成并返回音频数据 | `Blob` 或 `ArrayBuffer` |
-| error  | 录音过程发生错误    | `string`               |
-| cancel | 录音被用户取消     | —                      |
+| error  | 录音过程发生错误       | `string`                |
+| cancel | 录音被用户取消         | —                       |
 
 ## AudioRecorder Slots
 
-| 插槽名     | 说明         | Slot Props                                                  |
-| ------- | ---------- | ----------------------------------------------------------- |
+| 插槽名  | 说明                 | Slot Props                                                                |
+| ------- | -------------------- | ------------------------------------------------------------------------- |
 | trigger | 自定义触发录音的内容 | `isPressing: boolean` 是否处于按压中；`isRecording: boolean` 是否正在录音 |
-

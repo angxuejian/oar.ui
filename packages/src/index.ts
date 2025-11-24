@@ -1,9 +1,17 @@
 import * as Components from './components/main'
 import { type ComponentsType } from './components/main'
-import type { JoystickChangeLinear8WayDataType, JoystickChangeLinear4WayDataType, JoystickChangeRotateDataType } from './components/main'
+import type {
+  JoystickChangeLinear8WayDataType,
+  JoystickChangeLinear4WayDataType,
+  JoystickChangeRotateDataType,
+} from './components/main'
 import { type App } from 'vue'
 
-export type { JoystickChangeLinear8WayDataType, JoystickChangeLinear4WayDataType, JoystickChangeRotateDataType }
+export type {
+  JoystickChangeLinear8WayDataType,
+  JoystickChangeLinear4WayDataType,
+  JoystickChangeRotateDataType,
+}
 export default {
   install(app: App) {
     // 合并用户配置与默认配置

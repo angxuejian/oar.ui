@@ -1,26 +1,24 @@
-
 <script lang="ts" setup>
 import { ref, type Ref, computed, onMounted } from 'vue'
 import { type UseCommonProps, useCommonComputed, useNamespace } from '@OarUI/hooks'
 import { useThumbMouse } from './utils'
 import { useResizeObserver } from '@vueuse/core'
-import { throttle } from 'throttle-debounce';
+import { throttle } from 'throttle-debounce'
 
 const emit = defineEmits(['scroll'])
 
 interface Props {
-  always?: boolean,
-  scrollY?: boolean,
+  always?: boolean
+  scrollY?: boolean
   scrollX?: boolean
 }
 
 const props = withDefaults(defineProps<Props & UseCommonProps>(), {
   always: false,
   scrollY: false,
-  scrollX: false
+  scrollX: false,
 })
-const THEME_DEFAULT = useCommonComputed(props);
-
+const THEME_DEFAULT = useCommonComputed(props)
 
 const ns = useNamespace('scrollbar')
 const wrapRef: Ref = ref()
@@ -41,39 +39,47 @@ const thumbScrollX = ref<number>(0)
 const thumbHorizontalStyle = computed(() => {
   return {
     height: thumbHeight.value + '%',
-    transform: `translateY(${thumbScrollY.value}%)`
+    transform: `translateY(${thumbScrollY.value}%)`,
   }
 })
 const thumbVerticalStyle = computed(() => {
   return {
     width: thumbWidth.value + '%',
-    transform: `translateX(${thumbScrollX.value}%)`
+    transform: `translateX(${thumbScrollX.value}%)`,
   }
 })
 
 const wrapClass = computed(() => {
   return [
-  ns.e('warp'),
-  ns.is('show', !THEME_DEFAULT.value),
-  ns.is('scroll-y', props.scrollY && !props.scrollX),
-  ns.is('scroll-x', !props.scrollY && props.scrollX),
-  ns.is('scroll', !props.scrollX && !props.scrollY)
+    ns.e('warp'),
+    ns.is('show', !THEME_DEFAULT.value),
+    ns.is('scroll-y', props.scrollY && !props.scrollX),
+    ns.is('scroll-x', !props.scrollY && props.scrollX),
+    ns.is('scroll', !props.scrollX && !props.scrollY),
   ]
 })
 
-const { handleMouseDown, getThumbSize, getScrollDistance, calcScrollValue } = useThumbMouse(wrapRef, barHorizontalRef, barVerticalRef)
-
-
+const { handleMouseDown, getThumbSize, getScrollDistance, calcScrollValue } = useThumbMouse(
+  wrapRef,
+  barHorizontalRef,
+  barVerticalRef,
+)
 
 onMounted(() => {
   // calcThumbSize()
-  useResizeObserver(wrapRef, throttle(500, () => {
-    calcThumbSize()
-  }))
+  useResizeObserver(
+    wrapRef,
+    throttle(500, () => {
+      calcThumbSize()
+    }),
+  )
 
-  useResizeObserver(wrapViewRef, throttle(500, () => {
-    calcThumbSize()
-  }))
+  useResizeObserver(
+    wrapViewRef,
+    throttle(500, () => {
+      calcThumbSize()
+    }),
+  )
 })
 
 const calcThumbSize = () => {
@@ -91,7 +97,6 @@ const handleScroll = (event: Event) => {
 }
 
 const handleClickBar = (event: MouseEvent) => {
-
   const scrollType = (event.target as HTMLElement).getAttribute('data-type')
 
   let key = ''
@@ -103,7 +108,6 @@ const handleClickBar = (event: MouseEvent) => {
     const startY = top + thumbHorizontalRef.value.offsetHeight / 2
     value = calcScrollValue(event, 'Y', startY, wrapRef.value.scrollTop)
     key = 'scrollTop'
-
   } else {
     const left = thumbVerticalRef.value.getBoundingClientRect().left
 
@@ -116,19 +120,19 @@ const handleClickBar = (event: MouseEvent) => {
 }
 
 const runScrollValue = (key: string, value: number) => {
-    let index = 0
-    const length = 10
-    const speed = Math.ceil((value - wrapRef.value[key]) / length)
+  let index = 0
+  const length = 10
+  const speed = Math.ceil((value - wrapRef.value[key]) / length)
 
-    const runTimeout = window.requestAnimationFrame || (fn => setTimeout(fn, 10))
-    const main = () => {
-      wrapRef.value[key] += speed
+  const runTimeout = window.requestAnimationFrame || ((fn) => setTimeout(fn, 10))
+  const main = () => {
+    wrapRef.value[key] += speed
 
-      if (index < length) runTimeout(main)
-        index += 1
-    }
-    main()
+    if (index < length) runTimeout(main)
+    index += 1
   }
+  main()
+}
 
 const setScrollTop = (value: number) => {
   runScrollValue('scrollTop', value)
@@ -141,26 +145,50 @@ const setScrollLeft = (value: number) => {
 defineExpose({ ref: wrapRef, setScrollTop, setScrollLeft })
 </script>
 
-
 <template>
   <div :class="[ns.b()]">
     <div @scroll="handleScroll" ref="wrapRef" :class="wrapClass">
       <div ref="wrapViewRef" :class="[ns.e('view')]">
-          <slot />
+        <slot />
       </div>
     </div>
 
-    <div v-show="thumbHeight && !THEME_DEFAULT" @click="handleClickBar" data-type="Y" :class="[ns.e('bar'), ns.e('horizontal')]" ref="barHorizontalRef">
-      <div ref="thumbHorizontalRef" @click.stop @mousedown="handleMouseDown" data-type="Y" :style="thumbHorizontalStyle" :class="[ns.e('thumb'), ns.is('always', props.always)]"></div>
+    <div
+      v-show="thumbHeight && !THEME_DEFAULT"
+      @click="handleClickBar"
+      data-type="Y"
+      :class="[ns.e('bar'), ns.e('horizontal')]"
+      ref="barHorizontalRef"
+    >
+      <div
+        ref="thumbHorizontalRef"
+        @click.stop
+        @mousedown="handleMouseDown"
+        data-type="Y"
+        :style="thumbHorizontalStyle"
+        :class="[ns.e('thumb'), ns.is('always', props.always)]"
+      ></div>
     </div>
-    <div v-show="thumbWidth && !THEME_DEFAULT" @click="handleClickBar" data-type="X" :class="[ns.e('bar'), ns.e('vertical')]" ref="barVerticalRef">
-      <div ref="thumbVerticalRef" @click.stop @mousedown="handleMouseDown" data-type="X" :style="thumbVerticalStyle" :class="[ns.e('thumb'), ns.is('always', props.always)]"></div>
+    <div
+      v-show="thumbWidth && !THEME_DEFAULT"
+      @click="handleClickBar"
+      data-type="X"
+      :class="[ns.e('bar'), ns.e('vertical')]"
+      ref="barVerticalRef"
+    >
+      <div
+        ref="thumbVerticalRef"
+        @click.stop
+        @mousedown="handleMouseDown"
+        data-type="X"
+        :style="thumbVerticalStyle"
+        :class="[ns.e('thumb'), ns.is('always', props.always)]"
+      ></div>
     </div>
- </div>
+  </div>
 </template>
 
 <style lang="scss" scoped>
-
 $size: 5px;
 .oar-scrollbar {
   width: 100%;
@@ -190,7 +218,7 @@ $size: 5px;
       overflow-x: auto;
       .oar-scrollbar__view {
         text-wrap: nowrap;
-        white-space: nowrap;;
+        white-space: nowrap;
       }
     }
   }
@@ -211,7 +239,9 @@ $size: 5px;
   &__thumb {
     background-color: var(--oar-scrollthumb-color);
     opacity: 0;
-    transition: background-color 0.3s, opacity 0.3s;
+    transition:
+      background-color 0.3s,
+      opacity 0.3s;
     &:hover {
       background-color: var(--oar-scrollthumb-color-hover);
     }
@@ -230,7 +260,7 @@ $size: 5px;
       transform: translateY(1px);
     }
   }
-  &__vertical{
+  &__vertical {
     height: $size;
     width: calc(100% - 5px);
     bottom: 0;
@@ -240,6 +270,5 @@ $size: 5px;
       transform: translateX(1px);
     }
   }
-
 }
 </style>

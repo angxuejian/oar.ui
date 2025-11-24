@@ -12,7 +12,6 @@ describe('Button.vue', () => {
     expect(wrapper.classes()).toContain('oar-button--primary')
   })
 
-
   it('should apply loading class when loading prop is true', () => {
     const wrapper = mount(Button, {
       props: {
@@ -23,7 +22,6 @@ describe('Button.vue', () => {
     // Check that the loading class is applied
     expect(wrapper.classes()).toContain('oar-button--loading')
   })
-
 
   it('should not be disabled if disabled prop is false', () => {
     const wrapper = mount(Button, {
@@ -36,7 +34,6 @@ describe('Button.vue', () => {
     const buttonElement = wrapper.find('button')
     expect(buttonElement.attributes('disabled')).toBeUndefined()
   })
-
 
   it('should be disabled when disabled prop is true', async () => {
     const wrapper = mount(Button, {
@@ -55,7 +52,6 @@ describe('Button.vue', () => {
     expect(buttonElement.element.disabled).toBe(true)
   })
 
-
   it('should show loading spinner when loading prop is true and button is not disabled', () => {
     const wrapper = mount(Button, {
       props: {
@@ -69,7 +65,6 @@ describe('Button.vue', () => {
     expect(spinner.exists()).toBe(true)
   })
 
-
   it('should apply plain style when plain prop is true', () => {
     const wrapper = mount(Button, {
       props: {
@@ -81,7 +76,6 @@ describe('Button.vue', () => {
     expect(wrapper.classes()).toContain('is-plain')
   })
 
-
   it('should apply text style when text prop is true', () => {
     const wrapper = mount(Button, {
       props: {
@@ -92,7 +86,6 @@ describe('Button.vue', () => {
     // Check if text class is added
     expect(wrapper.classes()).toContain('is-text')
   })
-
 
   it('should apply computed button classes correctly based on props', async () => {
     const wrapper = mount(Button, {
@@ -112,7 +105,6 @@ describe('Button.vue', () => {
     expect(wrapper.classes()).not.toContain('is-text')
   })
 
-
   it('should pass additional attributes to the button', () => {
     const wrapper = mount(Button, {
       attrs: {
@@ -123,7 +115,6 @@ describe('Button.vue', () => {
     const buttonElement = wrapper.find('button')
     expect(buttonElement.attributes('aria-label')).toBe('submit button')
   })
-
 
   it('should not emit click event when disabled', async () => {
     const wrapper = mount(Button, {
@@ -136,7 +127,6 @@ describe('Button.vue', () => {
     expect(wrapper.emitted()).not.toHaveProperty('click')
   })
 
-
   it('should render content inside the button', () => {
     const wrapper = mount(Button, {
       slots: {
@@ -147,7 +137,6 @@ describe('Button.vue', () => {
     const buttonContent = wrapper.text()
     expect(buttonContent).toContain('Click Me')
   })
-
 
   it('should apply plain style correctly when plain and text are true', async () => {
     const wrapper = mount(Button, {
@@ -160,7 +149,6 @@ describe('Button.vue', () => {
     expect(wrapper.classes()).toContain('is-plain')
     expect(wrapper.classes()).not.toContain('is-text')
   })
-
 
   it('should update button class when loading prop changes', async () => {
     const wrapper = mount(Button)
@@ -176,7 +164,6 @@ describe('Button.vue', () => {
     await wrapper.setProps({ loading: false })
     expect(wrapper.classes()).not.toContain('oar-button--loading')
   })
-
 
   it('should emit a click event when clicked', async () => {
     const wrapper = mount(Button)
