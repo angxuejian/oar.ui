@@ -3,8 +3,7 @@
 /* 淡入淡出 */
 .fade-enter-active,
 .fade-leave-active {
-    transition: all 0.3s;
-    // background-color: red;
+  transition: opacity 0.3s ease;
 }
 
 .fade-enter-from,

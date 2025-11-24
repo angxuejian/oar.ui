@@ -9,6 +9,9 @@ $primary-color-active: color.adjust($primary-color, $lightness: -15%);
 $primary-color-disabled: color.adjust($primary-color, $saturation: -30%);
 
 $color-white: color.adjust(#ffffff, $whiteness: 15%);
+$color-white-soft: color.adjust(#ffffff, $lightness: 50%);
+
+
 $color-black: color.adjust(#000000, $whiteness: 15%);
 $color-black-placeholder: color.adjust($color-black, $whiteness: 80%);
 $color-black-disabled: color.adjust(#F0F0F0, $saturation: -10%);
@@ -36,6 +39,7 @@ $name: '--oar-color';
   }
   --oar-black: #000000;
   --oar-white: #ffffff;
+  --oar-white-soft: #ededed;
 
   --oar-border-radius: 4px;
   --oar-border-radius-medium: 8px;

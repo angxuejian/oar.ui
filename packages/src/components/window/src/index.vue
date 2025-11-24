@@ -1,50 +1,114 @@
 <script setup lang="ts">
 import { type UseCommonProps, useCommonComputed, useNamespace } from '@OarUI/hooks';
 import { X } from 'lucide-vue-next';
-import { reactive, computed, onMounted, type Ref, ref } from 'vue';
+import { reactive, computed, onUnmounted, type Ref, ref, watch, nextTick } from 'vue';
+
+interface PositionType {
+  x: number;
+  y: number;
+}
 
 interface Props {
   title?: string,
   to?: string,
+  center?: boolean,
+  defaultPosition?: PositionType,
+  width: number | string,
+  height: number | string,
+  contentStyle?: string;
+  contentClass?: string;
 }
 const props = withDefaults(defineProps<Props & UseCommonProps>(), {
   title: 'New Tab',
   to: 'body',
+  center: false,
+  defaultPosition: () => ({ x: 0, y: 0 })
 });
 const THEME_DEFAULT = useCommonComputed(props);
 const ns = useNamespace('window');
+
+const show = defineModel<boolean>('show', { default: false})
 const windowRef: Ref<HTMLElement | null> = ref(null);
 const position = reactive({
-  x: 0,
-  y: 0,
+  x: props.defaultPosition.x,
+  y: props.defaultPosition.y,
 });
+const targetPosition = {
+  x: props.defaultPosition.x,
+  y: props.defaultPosition.y
+};
 
 const windowStyle = computed(() => {
   return {
-    transform: `translate(${position.x}px, ${position.y}px)`
+    transform: `translate(${position.x}px, ${position.y}px)`,
   }
+})
+
+const contentStyle = computed(() => {
+  return [
+    {
+      width: typeof props.width === 'number' ? `${props.width}px` : props.width,
+      height: typeof props.height === 'number' ? `${props.height}px` : props.height,
+    },
+    props.contentStyle
+  ]
 })
 
 let isDragging = false;
 let startPosition = { x: 0, y: 0 };
 let windowPosition = { x: 0, y: 0 };
-let targetPosition = { x: 0, y: 0 };
 let animationId: number | null = null;
-let containerRect: DOMRect;
-let elementRect: DOMRect;
+let containerRect: DOMRect | null = null;
+let elementRect: DOMRect | null = null;
 
-onMounted(() => {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      // 暂不支持动态宽高
-      const containerEl = document.querySelector(props.to);
-      if (!containerEl) return;
+onUnmounted(() => {
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+  windowRef.value = null;
+  show.value = false;
+  position.x = props.defaultPosition.x;
+  position.y = props.defaultPosition.y;
+  targetPosition.x = props.defaultPosition.x;
+  targetPosition.y = props.defaultPosition.y;
 
-      containerRect = containerEl.getBoundingClientRect();
-      elementRect = windowRef.value!.getBoundingClientRect();
-    });
-  });
-});
+  isDragging = false;
+  startPosition = { x: 0, y: 0 };
+  windowPosition = { x: 0, y: 0 };
+  containerRect = null;
+  elementRect = null;
+})
+
+
+watch(show, async (newV) => {
+  if (!newV) return
+  await nextTick()
+  await nextFrame()
+  await nextFrame()
+
+  const containerEl = document.querySelector(props.to);
+  if (!containerEl) return;
+
+  containerRect = containerEl.getBoundingClientRect();
+  elementRect = windowRef.value!.getBoundingClientRect();
+
+  if (props.center) {
+    const x = (containerRect.width - elementRect.width) / 2;
+    const y = (containerRect.height - elementRect.height) / 2;
+
+    position.x = x;
+    position.y = y;
+    targetPosition.x = x;
+    targetPosition.y = y;
+  }
+
+  // 可扩展监听 containerEl 变化; 根据 旧位置与旧容器的占比 * 新容器宽高 = 新位置
+  // 旧位置要使用原始位置，不是 clampPosition 计算后的
+})
+
+
+const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
 
 // 限制位置（核心边界函数）
 const clampPosition = (x: number, y: number) => {
@@ -91,7 +155,6 @@ const handlerStart = (e: MouseEvent | TouchEvent) => {
     window.addEventListener('touchcancel', handlerEnd, { passive: false });
   }
 
-  startAnimationLoop();
 }
 
 const handlerMove = (e: MouseEvent | TouchEvent) => {
@@ -114,10 +177,9 @@ const handlerMove = (e: MouseEvent | TouchEvent) => {
   targetPosition.x = clampedPosition.x;
   targetPosition.y = clampedPosition.y;
 
-  // 只在第一帧同步即可
+  // 只在未启用时触发
   if (!animationId) {
-    position.x = targetPosition.x;
-    position.y = targetPosition.y;
+    startAnimationLoop();
   }
 }
 
@@ -158,65 +220,69 @@ const startAnimationLoop = () => {
     if (isDragging || !nearX || !nearY) {
       animationId = requestAnimationFrame(animate);
     } else {
-      animationId && cancelAnimationFrame(animationId);
-      animationId = null;
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+      }
     }
   }
 
   animationId = requestAnimationFrame(animate);
 }
 
+const closeWindow = () => {
+  show.value = false;
+}
 </script>
 
 
 <template>
-  <div ref="windowRef" :style="windowStyle" :class="ns.b()">
+  <Teleport :to="props.to">
+    <Transition name="fade">
+      <div v-if="show" ref="windowRef" :style="windowStyle" :class="ns.b()">
 
-    <div :class="ns.e('tab')">
-      <h5 @mousedown="handlerStart" @touchstart="handlerStart">{{ props.title }}</h5>
+        <div :class="ns.e('tab')">
+          <h5 @mousedown="handlerStart" @touchstart="handlerStart">{{ props.title }}</h5>
 
-      <div :class="ns.e('tab-btn')">
-        <div :class="ns.e('tab-btn-icon')">
-          <X  />
+          <div :class="ns.e('tab-btn')">
+            <div @click="closeWindow" :class="ns.e('tab-btn-icon')">
+              <X />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <div :class="ns.e('content')"></div>
-  </div>
+        <div :style="contentStyle" :class="[ns.e('content'), props.contentClass]"></div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 
 <style lang="scss" scoped>
 @include b('window') {
   border: 1px solid transparent;
-  width: 300px;
-  height: 200px;
   box-sizing: border-box;
-  background-color: #fff;
-  display: flex;
-  flex-direction: column;
   border-radius: var(--oar-border-radius-medium);
   box-shadow: var(--oar-border-shadow-medium);
   overflow: hidden;
-  position: fixed;
-  transform: translate(0, 0);
+  position: absolute;
+  left: 0;
+  top: 0;
+  background-color: var(--oar-white-soft);
 
 
   @include e('tab') {
     width: 100%;
     height: 30px;
-    background-color: #ededed;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #ededed;
     box-sizing: border-box;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
-    > h5 {
+    >h5 {
       flex: 1;
       align-content: center;
       padding-left: 5px;
@@ -226,6 +292,7 @@ const startAnimationLoop = () => {
       text-overflow: ellipsis;
       height: 100%;
       cursor: grab;
+
       &:active {
         cursor: grabbing
       }
@@ -250,23 +317,25 @@ const startAnimationLoop = () => {
     color: var(--oar-black);
     background-color: transparent;
     transition: all 0.3s;
+
     &:hover {
       color: var(--oar-white);
       background-color: var(--oar-primary-color)
     }
+
     &:active {
       color: var(--oar-white);
       background-color: var(--oar-primary-color-active);
     }
-    > svg {
+
+    >svg {
       width: 15px;
       height: 15px;
     }
   }
 
   @include e('content') {
-    flex: 1;
-    // background-color: red;
+    background-color: var(--oar-white);
   }
 }
 </style>
