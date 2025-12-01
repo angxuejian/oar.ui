@@ -42,7 +42,6 @@ const targetPosition = { x: 0, y: 0 }
 
 // 对 props.defaultPosition 初始化
 const initPosition = () => {
-
   const clampedPosition = clampPosition(props.defaultPosition.x, props.defaultPosition.y)
   position.x = clampedPosition.x
   position.y = clampedPosition.y

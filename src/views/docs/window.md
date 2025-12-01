@@ -75,6 +75,7 @@ const s2 = ref(false)
 
 ::: demo
 <template>
+
 <div style="display:flex; gap:10px">
 <OarButton @click="(s4 = true)">打开内容窗口</OarButton>
 <OarWindow
