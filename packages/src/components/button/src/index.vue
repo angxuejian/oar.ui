@@ -92,7 +92,6 @@ const buttonClass = computed(() => {
 }
 
 .oar-button {
-  margin-left: 12px;
   font-size: var(--oar-font-size);
   padding: 8px 15px;
   overflow: hidden;

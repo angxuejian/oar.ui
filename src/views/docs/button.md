@@ -18,9 +18,9 @@
 
 ::: demo
 <OarButton default>Default</OarButton>
-<OarButton>Primary</OarButton>
-<OarButton plain>Plain primary</OarButton>
-<OarButton text>Text primary</OarButton>
+<OarButton style="margin-left: 12px;">Primary</OarButton>
+<OarButton style="margin-left: 12px;" plain>Plain primary</OarButton>
+<OarButton style="margin-left: 12px;" text>Text primary</OarButton>
 :::
 
 ## 加载状态
@@ -28,9 +28,9 @@
 通过设置 loading 属性为 true 来显示加载中状态。
 ::: demo
 <OarButton loading default>Default</OarButton>
-<OarButton loading>Primary</OarButton>
-<OarButton loading plain>Plain primary</OarButton>
-<OarButton loading text>Text primary</OarButton>
+<OarButton style="margin-left: 12px;" loading>Primary</OarButton>
+<OarButton style="margin-left: 12px;" loading plain>Plain primary</OarButton>
+<OarButton style="margin-left: 12px;" loading text>Text primary</OarButton>
 :::
 
 ## 禁用状态
@@ -38,9 +38,9 @@
 使用 disabled 属性来控制按钮是否为禁用状态
 ::: demo
 <OarButton disabled default>Default</OarButton>
-<OarButton disabled>Primary</OarButton>
-<OarButton disabled plain>Plain primary</OarButton>
-<OarButton disabled text>Text primary</OarButton>
+<OarButton style="margin-left: 12px;" disabled>Primary</OarButton>
+<OarButton style="margin-left: 12px;" disabled plain>Plain primary</OarButton>
+<OarButton style="margin-left: 12px;" disabled text>Text primary</OarButton>
 :::
 
 ## Button Attributes
