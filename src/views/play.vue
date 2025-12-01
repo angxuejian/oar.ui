@@ -1,26 +1,35 @@
-<script lang="ts" setup>
-import OarButton from '@OarUI/components/button'
+<script setup lang="ts">
 import { ref } from 'vue'
 
-const isShow = ref(false)
-const handlerClick = () => {
-  isShow.value = !isShow.value
-}
-const pos = { x: 0, y: 0 }
-
+const maskVisible = ref(true)
 setTimeout(() => {
-  pos.x = 2000
-  pos.y = 300
-  console.log('已更新')
-}, 2000)
+  maskVisible.value = false
+}, 5000)
+
+const toggleMask = () => {
+  maskVisible.value = !maskVisible.value
+}
 </script>
 
 <template>
-  <div style="width: 100%; height: 100%; background-color: #ededed">
-    <OarWindow width="100px" height="130px" :show="isShow" :defaultPosition="pos"></OarWindow>
-
-    <OarButton @click="handlerClick">按钮</OarButton>
+  <div class="play-container">
+    <OarButton @click="toggleMask">Toggle Mask</OarButton>
+    <OarMask v-model:show="maskVisible">
+      <div class="mask-content">
+        <h3>Mask Content</h3>
+        <p>Click mask to close</p>
+      </div>
+    </OarMask>
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style scoped>
+.play-container {
+  padding: 20px;
+}
+.mask-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+}
+</style>
