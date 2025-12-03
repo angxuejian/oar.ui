@@ -17,12 +17,12 @@
 
 ## 虚线长度控制
 
-使用 `dashLong` 控制虚线段长度占圆周长的百分比，取值 `0 ~ 1`。
+使用 `dashedPercent` 控制虚线段长度占圆周长的百分比，取值 `0 ~ 1`。
 
 ::: demo
-<OarDashedLoading :dash-long="0.3" />
-<OarDashedLoading style="margin-left: 16px;" :dash-long="0.5" />
-<OarDashedLoading style="margin-left: 16px;" :dash-long="0.8" />
+<OarDashedLoading :dashed-percent="0.3" />
+<OarDashedLoading style="margin-left: 16px;" :dashed-percent="0.5" />
+<OarDashedLoading style="margin-left: 16px;" :dashed-percent="0.8" />
 :::
 
 ## 尺寸自适应
@@ -57,7 +57,7 @@
 | radius      | 圆半径             | number | 10   |
 | strokeWidth | 线条宽度            | number | 1    |
 | padding     | 内部留白，用于避免裁切     | number | 4    |
-| dashLong    | 虚线段占圆周比例（0 - 1） | number | 0.75 |
+| dashedPercent    | 虚线段占圆周比例（0 - 1） | number | 0.75 |
 
 
 

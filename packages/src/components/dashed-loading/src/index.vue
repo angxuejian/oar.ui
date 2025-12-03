@@ -6,19 +6,19 @@ interface Props {
   radius?: number;
   strokeWidth?: number;
   padding?: number;
-  dashLong?: number
+  dashedPercent?: number
 }
 
 const props = withDefaults(defineProps<Props & UseCommonProps>(), {
   radius: 10,
   strokeWidth: 1,
   padding: 4,
-  dashLong: 0.75
+  dashedPercent: 0.75
 })
 
 const ns = useNamespace('dashed-loading')
 
-const percent = computed(() => Math.max(0, Math.min(props.dashLong, 1)))
+const percent = computed(() => Math.max(0, Math.min(props.dashedPercent, 1)))
 
 // svg + circle size
 const outer = computed(() => props.radius + props.strokeWidth + props.padding)
