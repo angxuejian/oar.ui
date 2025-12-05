@@ -53,17 +53,17 @@ describe('DashedLoading.vue', () => {
     expect(circle.attributes('stroke-width')).toBe('3')
   })
 
-  it('should clamp dashLong percent between 0 and 1', async () => {
+  it('should clamp dashedPercent percent between 0 and 1', async () => {
     const wrapper = mount(DashedLoading, {
       props: {
-        dashLong: 5, // 超过 1
+        dashedPercent: 5, // 超过 1
       },
     })
 
     const vm = wrapper.vm as any
     expect(vm.percent).toBe(1)
 
-    await wrapper.setProps({ dashLong: -3 }) // 小于 0
+    await wrapper.setProps({ dashedPercent: -3 }) // 小于 0
     expect(vm.percent).toBe(0)
   })
 
@@ -73,7 +73,7 @@ describe('DashedLoading.vue', () => {
         radius: 10,
         strokeWidth: 2,
         padding: 5,
-        dashLong: 0.5,
+        dashedPercent: 0.5,
       },
     })
 
