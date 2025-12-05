@@ -6,7 +6,7 @@ import { ref } from 'vue'
 
 <template>
   <div class="play-container">
-    <OarDashedLoading />
+    <OarAutoCloseRing />
   </div>
 </template>
 
