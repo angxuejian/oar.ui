@@ -148,12 +148,12 @@
 
 > 支持input全部事件
 
-| 事件名 | 说明                                        | 类型     |
+| 事件名 | 说明                                        | 回调参数     |
 | ------ | ------------------------------------------- | -------- |
-| focus  | 当选择器的输入框获得焦点时触发              | Function |
-| blur   | 当选择器的输入框失去焦点时触发              | Function |
-| input  | 在 Input 值改变时触发                       | Function |
-| clear  | 在点击由 clearable 属性生成的清空按钮时触发 | Function |
+| focus  | 当选择器的输入框获得焦点时触发              | — |
+| blur   | 当选择器的输入框失去焦点时触发              | — |
+| input  | 在 Input 值改变时触发                       | `string` |
+| clear  | 在点击由 clearable 属性生成的清空按钮时触发 | — |
 
 ## Input Exposes
 

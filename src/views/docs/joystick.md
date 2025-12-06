@@ -56,7 +56,7 @@ const changeHandler = (event: JoystickChangeLinear8WayDataType) => {
 
 ## Input Events
 
-| 事件名 | 说明                                     | 类型     |
+| 事件名 | 说明                                     | 回调参数     |
 | ------ | ---------------------------------------- | -------- |
-| change | 操作时返回的方向、角度、弧度、力度等信息 | Function |
-| reset  | 当摇杆回归原点时                         | Function |
+| change | 操作时返回的方向、角度、弧度、力度等信息 | `JoystickChangeLinear8WayDataType`、 `JoystickChangeLinear4WayDataType`、 `JoystickChangeRotateDataType` |
+| reset  | 当摇杆回归原点时                         | — |
